@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">SkinScanner</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="denied_permission">카메라 권한을 허용하셔야 앱을 이용하실 수 있습니다.</string>
+    <string name="default_loading_message">Loading...</string>
+    <string name="wait_for_process_image">사용자님의 피부 상태를 확인하고 있습니다...</string>
+    <string name="open_camera">내 피부사진 촬영하기</string>
+    <string name="open_gallery">내 피부사진 가져오기</string>
+</resources>
