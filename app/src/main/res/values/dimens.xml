@@ -6,4 +6,9 @@
     <dimen name="_24dp">24dp</dimen>
     <dimen name="_36dp">36dp</dimen>
     <dimen name="_48dp">48dp</dimen>
+    <dimen name="_56dp">56dp</dimen>
+    <dimen name="_60dp">60dp</dimen>
+    <dimen name="_72dp">72dp</dimen>
+
+    <dimen name="_16sp">16sp</dimen>
 </resources>

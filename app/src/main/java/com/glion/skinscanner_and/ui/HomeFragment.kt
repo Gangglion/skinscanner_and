@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentHomeBinding
+import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.checkPermission
 
@@ -39,9 +40,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         }
     }
 
-    fun checkPermissionCamera() {
+    private fun checkPermissionCamera() {
         when {
             mContext.checkPermission(Manifest.permission.CAMERA) -> {
+                CameraFragment.isBackCamera = true
                 mParentActivity.changeFragment(ScreenType.Camera)
             }
             ActivityCompat.shouldShowRequestPermissionRationale(mParentActivity, Manifest.permission.CAMERA) -> {

@@ -7,4 +7,7 @@
     <string name="wait_for_process_image">사용자님의 피부 상태를 확인하고 있습니다...</string>
     <string name="open_camera">내 피부사진 촬영하기</string>
     <string name="open_gallery">내 피부사진 가져오기</string>
+    <string name="re_capture">다시 촬영하기</string>
+    <string name="do_analyze">분석하기</string>
+    <string name="fail_capture">사진 촬영에 실패했습니다. 다시 시도해주세요</string>
 </resources>
