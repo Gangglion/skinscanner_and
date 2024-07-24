@@ -26,6 +26,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mBinding.llOpenCamera.setOnClickListener(this@HomeFragment)
+        mBinding.llOpenGallery.setOnClickListener(this@HomeFragment)
     }
 
     override fun onClick(v: View?) {
@@ -35,7 +36,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             }
 
             mBinding.llOpenGallery.id -> {
-
+                mParentActivity.changeFragment(ScreenType.Gallery)
             }
         }
     }

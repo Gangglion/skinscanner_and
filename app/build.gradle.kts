@@ -37,6 +37,10 @@ android {
     dataBinding {
         enable = true
     }
+
+    androidResources {
+        ignoreAssetsPattern = "tflite" // tflite 압축하지 않은 상태로 저장할 자산으로 지정
+    }
 }
 
 dependencies {
@@ -54,6 +58,15 @@ dependencies {
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+
+    // tensorflow lite
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.select.tf.ops)
+    // tensorflow lite support library
+    implementation(libs.tensorflow.lite.v000nightlysnapshot)
+    // The GPU delegate library is optional. Depend on it as needed.
+    implementation (libs.tensorflow.lite.gpu)
+    implementation(libs.tensorflow.lite.support.v044)
 
     // Glide
     implementation(libs.glide)

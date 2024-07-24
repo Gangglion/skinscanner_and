@@ -10,7 +10,7 @@ import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.checkPermission
+import com.glion.skinscanner_and.ui.gallery.GalleryFragment
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home
@@ -56,7 +56,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
             }
             ScreenType.Gallery -> {
-                // TODO : Move to Gallery Fragment??
+                val fragment = GalleryFragment()
+                if(bundle != null) fragment.arguments = bundle
+                supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
             }
             ScreenType.Result -> {
                 val fragment = ResultFragment()

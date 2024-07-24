@@ -1,5 +1,6 @@
 package com.glion.skinscanner_and.ui.camera
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
@@ -16,9 +17,13 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.DLog
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.tflite.CancerQuantized
+import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,7 +31,7 @@ import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener {
+class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener, CancerQuantized.InferenceCallback {
     companion object {
         var isBackCamera = true
         const val TAKEN_PHOTO_NAME = "skinImage.jpg"
@@ -35,6 +40,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
     private lateinit var mTempPhotoFile: File
+    private lateinit var mLoadingDialog: LoadingDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,6 +56,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             tvReCapture.setOnClickListener(this@CameraFragment)
             tvDoAnalyze.setOnClickListener(this@CameraFragment)
         }
+        mLoadingDialog = LoadingDialog(mContext, mContext.getString(R.string.wait_for_process_image))
     }
 
     override fun onDestroyView() {
@@ -87,15 +94,16 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 changeCamera()
             }
             mBinding.btnCapture.id -> {
-                mTempPhotoFile.delete()
+                mTempPhotoFile.delete() // 저장된 비트맵 이미지 제거
                 takePhoto()
             }
             mBinding.tvReCapture.id -> {
-                mTempPhotoFile.delete()
+                mTempPhotoFile.delete() // 저장된 비트맵 이미지 제거
                 startCamera()
             }
             mBinding.tvDoAnalyze.id -> {
-                // TODO : 모델 들어오면 바이트 코드 넘겨서 분석 실시
+                mLoadingDialog.show()
+                startAnalyze()
             }
         }
     }
@@ -109,8 +117,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             ContextCompat.getMainExecutor(mContext),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    getImageByteArrayAsync()
-
                     Glide.with(mContext).load(outputFileResults.savedUri).apply(
                         // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
                         RequestOptions()
@@ -123,32 +129,53 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
                 override fun onError(exception: ImageCaptureException) {
                     mParentActivity.showToast(mContext.getString(R.string.fail_capture))
+                    mLoadingDialog.dismiss()
                 }
             }
         )
     }
 
-    /**
-     * 이미지 촬영 완료 시, 백그라운드에서 바이트코드로 변환
-     */
-    private fun getImageByteArrayAsync() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val byteArray = Utility.getImageByteArrayFromCache(mContext, TAKEN_PHOTO_NAME)
-            if(byteArray != null) {
-                DLog.i("코루틴 작업이 완료되고 반환되어 byteArray 가 null 이 아님")
-            } else {
-                DLog.w("Error")
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            val byteArray = Utility.getImageByteArrayFromCache(mContext, TAKEN_PHOTO_NAME)
-            if(byteArray != null)
-                Utility.logByteArray(byteArray)
-        }
-    }
-
     private fun changeCamera() {
         isBackCamera = !isBackCamera
         mParentActivity.changeFragment(ScreenType.Camera)
+    }
+
+    /**
+     * 촬영한 이미지로 분석 시작
+     */
+    private fun startAnalyze() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val cancerQuantized = CancerQuantized(mContext, this@CameraFragment)
+            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, TAKEN_PHOTO_NAME)
+            if(bitmap != null) {
+                cancerQuantized.processImage(bitmap).also {
+                    cancerQuantized.recognizeCancer(it)
+                }
+            } else {
+                DLog.e("startAnalyze - 분석 실패", null)
+            }
+        }
+    }
+
+    override fun onResult(cancerType: CancerType?, percent: Int) {
+        if(cancerType != null) {
+            val resultCancer = when(cancerType) {
+                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
+                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
+                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+            }
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, resultCancer)
+                putInt(Define.VALUE, percent)
+            }
+            mLoadingDialog.dismiss()
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        } else {
+            mLoadingDialog.dismiss()
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
+            }
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        }
     }
 }

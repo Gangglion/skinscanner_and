@@ -1,27 +1,25 @@
 package com.glion.skinscanner_and.util
 
 import android.content.Context
-import android.util.Base64
-import kotlinx.coroutines.CoroutineScope
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.DisplayMetrics
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 
 object Utility{
 
-    suspend fun getImageByteArrayFromCache(mContext: Context, fileName: String) : ByteArray?{
+    suspend fun getImageToBitmap(mContext: Context, fileName: String) : Bitmap?{
         return withContext(Dispatchers.IO) {
             val cacheDir = mContext.cacheDir
             val file = File(cacheDir, fileName)
 
             if(file.exists()) {
                 try {
-                    val fileInputStream = FileInputStream(file)
-                    val bytes = fileInputStream.readBytes()
-                    fileInputStream.close()
-                    bytes
+                    // TODO : 경로때문에 비트맵 못가져올 수 있음
+                    BitmapFactory.decodeFile(cacheDir.path + "/$fileName")
                 } catch(e: Exception) {
                     DLog.e("getImageByteArrayFromCache Has Error", e)
                     null
@@ -33,18 +31,10 @@ object Utility{
     }
 
     /**
-     * ByteArray 출력 확인용
+     * PxToDp
      */
-    @OptIn(ExperimentalStdlibApi::class)
-    suspend fun logByteArray(byteArray: ByteArray) {
-        withContext(Dispatchers.IO) {
-            CoroutineScope(Dispatchers.IO).launch {
-                DLog.d("ByteArrayHex :: ${byteArray.toHexString(HexFormat.UpperCase).take(100)}")
-            }
-            CoroutineScope(Dispatchers.IO).launch {
-                val base64String = Base64.encodeToString(byteArray, Base64.DEFAULT)
-                DLog.d("ByteArrayBase64 :: ${base64String.take(100)}")
-            }
-        }
+    fun pxToDp(px: Int, context: Context) : Int {
+        val metrics = context.resources.displayMetrics
+        return px / (metrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT
     }
 }
