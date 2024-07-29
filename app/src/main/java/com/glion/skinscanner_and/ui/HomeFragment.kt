@@ -1,10 +1,13 @@
 package com.glion.skinscanner_and.ui
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment

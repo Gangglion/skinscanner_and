@@ -2,6 +2,8 @@ package com.glion.skinscanner_and.ui.camera
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.camera.core.CameraSelector
@@ -34,7 +36,6 @@ import java.util.concurrent.Executors
 class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener, CancerQuantized.InferenceCallback {
     companion object {
         var isBackCamera = true
-        const val TAKEN_PHOTO_NAME = "skinImage.jpg"
     }
 
     private var mImageCapture: ImageCapture? = null
@@ -66,7 +67,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun startCamera() {
         val cameraProviderFeature = ProcessCameraProvider.getInstance(mContext)
-        mTempPhotoFile = File(mContext.applicationContext.cacheDir, TAKEN_PHOTO_NAME)
+        mTempPhotoFile = File(mContext.applicationContext.cacheDir, mContext.getString(R.string.photo_file_name))
         cameraProviderFeature.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFeature.get()
             val preview = Preview.Builder().build().also {
@@ -94,11 +95,11 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 changeCamera()
             }
             mBinding.btnCapture.id -> {
-                mTempPhotoFile.delete() // 저장된 비트맵 이미지 제거
+                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
                 takePhoto()
             }
             mBinding.tvReCapture.id -> {
-                mTempPhotoFile.delete() // 저장된 비트맵 이미지 제거
+                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
                 startCamera()
             }
             mBinding.tvDoAnalyze.id -> {
@@ -146,7 +147,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
     private fun startAnalyze() {
         CoroutineScope(Dispatchers.Main).launch {
             val cancerQuantized = CancerQuantized(mContext, this@CameraFragment)
-            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, TAKEN_PHOTO_NAME)
+            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, mContext.getString(R.string.photo_file_name))
             if(bitmap != null) {
                 cancerQuantized.processImage(bitmap).also {
                     cancerQuantized.recognizeCancer(it)
@@ -158,24 +159,26 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
     }
 
     override fun onResult(cancerType: CancerType?, percent: Int) {
-        if(cancerType != null) {
-            val resultCancer = when(cancerType) {
-                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+        Handler(Looper.getMainLooper()).postDelayed({
+            if(cancerType != null) {
+                val resultCancer = when(cancerType) {
+                    CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
+                    CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
+                    CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+                }
+                val bundle = Bundle().apply {
+                    putString(Define.RESULT, resultCancer)
+                    putInt(Define.VALUE, percent)
+                }
+                mLoadingDialog.dismiss()
+                mParentActivity.changeFragment(ScreenType.Result, bundle)
+            } else {
+                mLoadingDialog.dismiss()
+                val bundle = Bundle().apply {
+                    putString(Define.RESULT, mContext.getString(R.string.not_cancer))
+                }
+                mParentActivity.changeFragment(ScreenType.Result, bundle)
             }
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, resultCancer)
-                putInt(Define.VALUE, percent)
-            }
-            mLoadingDialog.dismiss()
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
-        } else {
-            mLoadingDialog.dismiss()
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-            }
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
-        }
+        },2000L)
     }
 }

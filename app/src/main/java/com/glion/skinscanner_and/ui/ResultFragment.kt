@@ -2,13 +2,19 @@ package com.glion.skinscanner_and.ui
 
 import android.os.Bundle
 import android.view.View
+import android.view.View.OnClickListener
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentResultBinding
+import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Define
+import com.glion.skinscanner_and.util.Utility
 
 
-class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layout.fragment_result) {
+class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layout.fragment_result), OnClickListener {
     private var mCancerResult: String? = null
     private var mCancerPercent: Int = -1
 
@@ -18,8 +24,32 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
             mCancerResult = it.getString(Define.RESULT)
             mCancerPercent = it.getInt(Define.VALUE)
         }
-        mBinding.tvResult.text = mCancerResult
-        if(mCancerPercent != 0)
-            mBinding.tvPercent.text = mContext.getString(R.string.percent_format).format(mCancerPercent)
+        mBinding.tvReCapture.setOnClickListener(this)
+        setLayout()
+    }
+
+    override fun onClick(v: View?) {
+        when(v!!.id) {
+            R.id.tv_re_capture -> {
+                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
+                mParentActivity.changeFragment(ScreenType.Camera)
+            }
+        }
+    }
+
+    private fun setLayout() {
+        with(mBinding) {
+            Glide.with(mContext)
+                .load(Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name)))
+                .apply(RequestOptions() // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                )
+                .into(ivPhotoTaken)
+            tvResult.text =  if(mCancerPercent != 0)
+                mContext.getString(R.string.cancer_result_format).format(mCancerResult, mContext.getString(R.string.percent_format).format(mCancerPercent))
+            else
+                mContext.getString(R.string.not_cancer)
+        }
     }
 }

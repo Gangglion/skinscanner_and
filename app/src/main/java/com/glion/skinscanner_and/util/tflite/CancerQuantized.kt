@@ -54,25 +54,25 @@ class CancerQuantized(
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
 
-    private fun analyzeResult(floatArray: FloatArray) {
-        val sigmoidResult = valueToSigmoid(floatArray)
-        DLog.i("결과값 : $sigmoidResult")
-        with(sigmoidResult) {
-            if(this[0] >= 0.5f) {
-                this.removeAt(0)
-                val maxValue = this.max()
-                when(this.indexOf(maxValue)) {
-                    0 -> callback.onResult(CancerType.AKIEC, (maxValue * 100).roundToInt())
-                    1 -> callback.onResult(CancerType.BCC, (maxValue * 100).roundToInt())
-                    2 -> callback.onResult(CancerType.MEL, (maxValue * 100).roundToInt())
-                }
-            } else {
-                callback.onResult(null, 0)
+    private fun analyzeResult(modelResult: FloatArray) {
+        val resultToMutableList = modelResult.toMutableList()
+        val sigmoidCancerResult = valueToSigmoid(modelResult[0])
+        DLog.i("결과값 : $sigmoidCancerResult")
+        if(sigmoidCancerResult >= 0.5f) { // 암일 확률이 0.5이상일 경우
+            resultToMutableList.removeAt(0)
+            val maxValue = resultToMutableList.max()
+            val cancerPercent = (sigmoidCancerResult * 100).toInt()
+            when(resultToMutableList.indexOf(maxValue)) {
+                0 -> callback.onResult(CancerType.AKIEC, cancerPercent)
+                1 -> callback.onResult(CancerType.BCC, cancerPercent)
+                2 -> callback.onResult(CancerType.MEL, cancerPercent)
             }
+        } else {
+            callback.onResult(null, 0)
         }
     }
 
-    private fun valueToSigmoid(floatArray: FloatArray) : MutableList<Float> {
-        return floatArray.map { 1/(1 + exp(-it)) }.toMutableList()
+    private fun valueToSigmoid(cancerPercent: Float) : Float {
+        return  1/(1 + exp(-cancerPercent))
     }
 }
