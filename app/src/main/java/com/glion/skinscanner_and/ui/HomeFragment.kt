@@ -17,12 +17,29 @@ import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.checkPermission
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fragment_home), OnClickListener {
+    companion object {
+        private const val READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE
+
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        private const val READ_MEDIA_IMAGES = Manifest.permission.READ_MEDIA_IMAGES
+
+        @RequiresApi(34)
+        private const val READ_MEDIA_VISUAL_USER_SELECTED = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+    }
 
     private val responseCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if(isGranted) {
             mParentActivity.changeFragment(ScreenType.Camera)
         } else {
             mParentActivity.showToast(mContext.getString(R.string.denied_permission))
+        }
+    }
+
+    private val requestGalleryPermission = registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) { // 권한을 허용했다면
+            mParentActivity.changeFragment(ScreenType.Gallery)
+        } else { // 권한을 허용하지 않았다면
+            mParentActivity.showToast(mContext.getString(R.string.denied_gallery))
         }
     }
 
@@ -39,7 +56,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             }
 
             mBinding.llOpenGallery.id -> {
-                mParentActivity.changeFragment(ScreenType.Gallery)
+                when (Build.VERSION.SDK_INT) {
+                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+                        handleClickOpenGallery(READ_MEDIA_VISUAL_USER_SELECTED)
+                    }
+
+                    Build.VERSION_CODES.TIRAMISU -> {
+                        handleClickOpenGallery(READ_MEDIA_IMAGES)
+                    }
+
+                    else -> {
+                        handleClickOpenGallery(READ_EXTERNAL_STORAGE)
+                    }
+                }
             }
         }
     }
@@ -55,6 +84,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             }
             else -> {
                 responseCameraPermission.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun handleClickOpenGallery(permission: String) {
+        when {
+            mContext.checkPermission(permission) -> {
+                mParentActivity.changeFragment(ScreenType.Gallery)
+            }
+
+            shouldShowRequestPermissionRationale(permission) -> {
+                mParentActivity.showToast(mContext.getString(R.string.denied_permission))
+            }
+
+            else -> { // 권한 허용 안되어있을 때
+                requestGalleryPermission.launch(permission)
             }
         }
     }
