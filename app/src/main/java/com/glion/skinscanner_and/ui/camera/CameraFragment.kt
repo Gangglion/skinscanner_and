@@ -1,16 +1,23 @@
 package com.glion.skinscanner_and.ui.camera
 
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.os.Bundle
+import android.os.FileUtils
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -29,6 +36,7 @@ import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -40,7 +48,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
-    private lateinit var mTempPhotoFile: File
+    private lateinit var mTakePhotoFile: File
     private lateinit var mLoadingDialog: LoadingDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,14 +75,25 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun startCamera() {
         val cameraProviderFeature = ProcessCameraProvider.getInstance(mContext)
-        mTempPhotoFile = File(mContext.applicationContext.cacheDir, mContext.getString(R.string.photo_file_name))
+        mTakePhotoFile = File(mContext.applicationContext.cacheDir, mContext.getString(R.string.photo_file_name))
         cameraProviderFeature.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFeature.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(mBinding.previewCamera.surfaceProvider)
-            }
+            val preview = Preview.Builder()
+                .build().also {
+                    it.setSurfaceProvider(mBinding.previewCamera.surfaceProvider)
+                }
+            mBinding.previewCamera.scaleType = PreviewView.ScaleType.FIT_CENTER
             val cameraSelector = if(isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
-            mImageCapture = ImageCapture.Builder().build()
+            mImageCapture = ImageCapture.Builder()
+                .setTargetRotation(requireView().display.rotation)
+                // 촬영된 이미지 비율 설정
+                .apply {
+                    val resolutionSelectorBuilder = ResolutionSelector.Builder().apply {
+                        setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+                    }
+                    setResolutionSelector(resolutionSelectorBuilder.build())
+                }
+                .build()
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, mImageCapture) // CameraProvider 에 ImageCapture 정보 넘긴다.
@@ -111,21 +130,13 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun takePhoto() {
         if(mImageCapture == null) return
-
-        val outputOption = ImageCapture.OutputFileOptions.Builder(mTempPhotoFile).build()
+        val outputOption = ImageCapture.OutputFileOptions.Builder(mTakePhotoFile).build()
         mImageCapture!!.takePicture(
             outputOption,
             ContextCompat.getMainExecutor(mContext),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Glide.with(mContext).load(outputFileResults.savedUri).apply(
-                        // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
-                        RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-                            .skipMemoryCache(true)
-                    ).into(mBinding.ivPreview)
-                    mBinding.clCamera.visibility = View.GONE
-                    mBinding.clPreview.visibility = View.VISIBLE
+                    cropImageAndShow()
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -134,6 +145,34 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 }
             }
         )
+    }
+
+    private fun cropImageAndShow() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                Utility.getImageToBitmap(mContext, mContext.getString(R.string.photo_file_name))
+            }
+            val matrix = Matrix().apply {
+                setRotate(90F)
+            }
+            val rotateBitmap = Bitmap.createBitmap(bitmap!!, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            // fixme : 사이즈 조절이 잘 안되는듯 하다.
+            val cropBitmap = Bitmap.createBitmap(
+                rotateBitmap,
+                mBinding.vArea.left,
+                mBinding.vArea.top,
+                mBinding.vArea.height,
+                mBinding.vArea.height
+            )
+            Glide.with(mContext).load(cropBitmap).apply(
+                // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
+                RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+            ).into(mBinding.ivPreview)
+            mBinding.clCamera.visibility = View.GONE
+            mBinding.clPreview.visibility = View.VISIBLE
+        }
     }
 
     private fun changeCamera() {
