@@ -2,22 +2,25 @@ package com.glion.skinscanner_and.ui.camera
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Bundle
-import android.os.FileUtils
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
-import androidx.camera.core.AspectRatio
+import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.camera.view.TransformExperimental
+import androidx.camera.view.transform.CoordinateTransform
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -36,11 +39,11 @@ import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+@OptIn(TransformExperimental::class)
 class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener, CancerQuantized.InferenceCallback {
     companion object {
         var isBackCamera = true
@@ -48,7 +51,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
-    private lateinit var mTakePhotoFile: File
     private lateinit var mLoadingDialog: LoadingDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,7 +77,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun startCamera() {
         val cameraProviderFeature = ProcessCameraProvider.getInstance(mContext)
-        mTakePhotoFile = File(mContext.applicationContext.cacheDir, mContext.getString(R.string.photo_file_name))
         cameraProviderFeature.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFeature.get()
             val preview = Preview.Builder()
@@ -114,11 +115,11 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 changeCamera()
             }
             mBinding.btnCapture.id -> {
-                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
+                Utility.deleteImage(mContext) // 저장된 비트맵 이미지 제거
                 takePhoto()
             }
             mBinding.tvReCapture.id -> {
-                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
+                Utility.deleteImage(mContext) // 저장된 비트맵 이미지 제거
                 startCamera()
             }
             mBinding.tvDoAnalyze.id -> {
@@ -130,51 +131,49 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun takePhoto() {
         if(mImageCapture == null) return
-        val outputOption = ImageCapture.OutputFileOptions.Builder(mTakePhotoFile).build()
-        mImageCapture!!.takePicture(
-            outputOption,
-            ContextCompat.getMainExecutor(mContext),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    cropImageAndShow()
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    mParentActivity.showToast(mContext.getString(R.string.fail_capture))
-                    mLoadingDialog.dismiss()
-                }
+        mImageCapture?.takePicture(ContextCompat.getMainExecutor(mContext), object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                super.onCaptureSuccess(image)
+                val bitmap = image.toBitmap()
+                val croppedBitmap = cropImageCenter(bitmap, mBinding.vArea.width, mBinding.vArea.height)
+                Utility.saveBitmapInCache(croppedBitmap, mContext)
+                image.close()
+                Glide.with(mContext).load(croppedBitmap).apply(
+                    // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
+                    RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                ).into(mBinding.ivPreview)
+                mBinding.clCamera.visibility = View.GONE
+                mBinding.clPreview.visibility = View.VISIBLE
             }
+
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+                mParentActivity.showToast(mContext.getString(R.string.fail_capture))
+                mLoadingDialog.dismiss()
+            }
+        })
+    }
+
+    private fun cropImageCenter(bitmap: Bitmap, width: Int, height: Int) : Bitmap {
+        val sourceWidth = bitmap.width
+        val sourceHeight = bitmap.height
+
+        val startX = (sourceWidth - width) / 2
+        val startY = (sourceHeight - height) / 2
+
+        val cropBitmap = Bitmap.createBitmap(bitmap, startX, startY, width, height)
+        val matrix = Matrix()
+        matrix.setRotate(90F)
+        return Bitmap.createBitmap(
+            cropBitmap, 0, 0, cropBitmap.width, cropBitmap.height, matrix, true
         )
     }
 
-    private fun cropImageAndShow() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val bitmap = withContext(Dispatchers.IO) {
-                Utility.getImageToBitmap(mContext, mContext.getString(R.string.photo_file_name))
-            }
-            val matrix = Matrix().apply {
-                setRotate(90F)
-            }
-            val rotateBitmap = Bitmap.createBitmap(bitmap!!, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            // fixme : 사이즈 조절이 잘 안되는듯 하다.
-            val cropBitmap = Bitmap.createBitmap(
-                rotateBitmap,
-                mBinding.vArea.left,
-                mBinding.vArea.top,
-                mBinding.vArea.height,
-                mBinding.vArea.height
-            )
-            Glide.with(mContext).load(cropBitmap).apply(
-                // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
-                RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-            ).into(mBinding.ivPreview)
-            mBinding.clCamera.visibility = View.GONE
-            mBinding.clPreview.visibility = View.VISIBLE
-        }
-    }
-
+    /**
+     * 전후 카메라 전환
+     */
     private fun changeCamera() {
         isBackCamera = !isBackCamera
         mParentActivity.changeFragment(ScreenType.Camera)
@@ -186,13 +185,18 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
     private fun startAnalyze() {
         CoroutineScope(Dispatchers.Main).launch {
             val cancerQuantized = CancerQuantized(mContext, this@CameraFragment)
-            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, mContext.getString(R.string.photo_file_name))
+            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, mContext.getString(R.string.saved_file_name))
             if(bitmap != null) {
                 cancerQuantized.processImage(bitmap).also {
                     cancerQuantized.recognizeCancer(it)
                 }
             } else {
                 DLog.e("startAnalyze - 분석 실패", null)
+                with(mParentActivity) {
+                    showToast("분석에 실패했습니다.")
+                    mLoadingDialog.dismiss()
+                    startCamera()
+                }
             }
         }
     }

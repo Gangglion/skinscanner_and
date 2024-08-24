@@ -14,6 +14,11 @@
         android:gravity="center"
         android:padding="@dimen/_16dp">
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_photo_taken"
             android:layout_width="match_parent"
@@ -62,7 +67,7 @@
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/_16dp"
             android:textSize="@dimen/_16sp"
-            android:text="@string/re_capture"
+            android:text="@string/go_main"
             android:textStyle="bold"
             android:layout_marginTop="@dimen/_16dp"
             android:textColor="@color/white"

@@ -31,8 +31,8 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.tv_re_capture -> {
-                Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name))?.delete() // 저장된 비트맵 이미지 제거
-                mParentActivity.changeFragment(ScreenType.Camera)
+                Utility.getSavedImage(mContext, mContext.getString(R.string.saved_file_name))?.delete() // 저장된 비트맵 이미지 제거
+                mParentActivity.changeFragment(ScreenType.Home)
             }
         }
     }
@@ -40,7 +40,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
     private fun setLayout() {
         with(mBinding) {
             Glide.with(mContext)
-                .load(Utility.getTakenPhotoFileInCache(mContext, mContext.getString(R.string.photo_file_name)))
+                .load(Utility.getSavedImage(mContext, mContext.getString(R.string.saved_file_name)))
                 .apply(RequestOptions() // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
