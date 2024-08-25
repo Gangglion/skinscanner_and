@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.gallery.GalleryFragment">
+        tools:context=".ui.fragment.GalleryFragment">
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

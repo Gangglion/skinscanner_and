@@ -16,12 +16,11 @@ object Utility{
 
     suspend fun getImageToBitmap(mContext: Context, fileName: String) : Bitmap?{
         return withContext(Dispatchers.IO) {
-            val cacheDir = mContext.cacheDir
-            val file = File(cacheDir, fileName)
+            val file = File(mContext.getString(R.string.cache_path), fileName)
 
             if(file.exists()) {
                 try {
-                    BitmapFactory.decodeFile(cacheDir.path + "/$fileName")
+                    BitmapFactory.decodeFile(mContext.getString(R.string.cache_path) + "/$fileName")
                 } catch(e: Exception) {
                     DLog.e("getImageByteArrayFromCache Has Error", e)
                     null

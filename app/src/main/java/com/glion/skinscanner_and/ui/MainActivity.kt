@@ -10,9 +10,12 @@ import androidx.core.view.WindowInsetsCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
-import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.ui.gallery.GalleryFragment
+import com.glion.skinscanner_and.ui.fragment.CameraFragment
+import com.glion.skinscanner_and.ui.fragment.GalleryFragment
+import com.glion.skinscanner_and.ui.fragment.HomeFragment
+import com.glion.skinscanner_and.ui.fragment.ResizeFragment
+import com.glion.skinscanner_and.ui.fragment.ResultFragment
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home
@@ -23,7 +26,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 ScreenType.Home -> {
                     finish()
                 }
-                ScreenType.Camera, ScreenType.Gallery -> {
+                ScreenType.Camera, ScreenType.Gallery, ScreenType.Resize -> {
                     changeFragment(ScreenType.Home)
                 }
                 ScreenType.Result -> {
@@ -61,6 +64,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
             ScreenType.Gallery -> {
                 val fragment = GalleryFragment()
+                if(bundle != null) fragment.arguments = bundle
+                supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
+            }
+            ScreenType.Resize -> {
+                val fragment = ResizeFragment()
                 if(bundle != null) fragment.arguments = bundle
                 supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
             }

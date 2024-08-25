@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.fragment.ResizeFragment"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/_48dp"
+            android:textSize="@dimen/_16sp"
+            android:textAlignment="center"
+            android:text="@string/drag_area"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_background_camera_boundary" />
+        </FrameLayout>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/tv_do_analyze"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:paddingVertical="@dimen/_16dp"
+            android:textSize="@dimen/_16sp"
+            android:layout_margin="@dimen/_16dp"
+            android:text="@string/do_analyze"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/ic_background_radius_8"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:textAlignment="center" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

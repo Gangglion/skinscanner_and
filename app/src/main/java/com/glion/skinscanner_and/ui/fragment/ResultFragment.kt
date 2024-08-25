@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui
+package com.glion.skinscanner_and.ui.fragment
 
 import android.os.Bundle
 import android.view.View
@@ -9,6 +9,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentResultBinding
+import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
@@ -31,7 +32,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.tv_re_capture -> {
-                Utility.getSavedImage(mContext, mContext.getString(R.string.saved_file_name))?.delete() // 저장된 비트맵 이미지 제거
+                Utility.deleteImage(mContext)
                 mParentActivity.changeFragment(ScreenType.Home)
             }
         }

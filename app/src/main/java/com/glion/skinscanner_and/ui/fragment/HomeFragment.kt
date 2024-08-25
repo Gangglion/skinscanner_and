@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui
+package com.glion.skinscanner_and.ui.fragment
 
 import android.Manifest
 import android.os.Build
@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentHomeBinding
-import com.glion.skinscanner_and.ui.camera.CameraFragment
+import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.checkPermission
 

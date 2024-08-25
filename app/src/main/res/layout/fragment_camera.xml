@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.camera.CameraFragment">
+        tools:context=".ui.fragment.CameraFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_camera"
@@ -21,27 +21,6 @@
                 android:id="@+id/preview_camera"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
-            <View
-                android:id="@+id/v_area"
-                android:layout_width="@dimen/_260dp"
-                android:layout_height="@dimen/_260dp"
-                android:background="@drawable/ic_background_camera_boundary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-<!--            <View-->
-<!--                android:id="@+id/v_area"-->
-<!--                android:layout_width="@dimen/_260dp"-->
-<!--                android:layout_height="@dimen/_260dp"-->
-<!--                android:background="@drawable/ic_background_camera_boundary"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"/>-->
-
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btn_close"
@@ -86,12 +65,12 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_preview"
+            android:id="@+id/cl_capture_check"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_preview"
+                android:id="@+id/iv_capture_check"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -120,13 +99,13 @@
                     android:layout_width="@dimen/_8dp"
                     android:layout_height="match_parent"/>
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tv_do_analyze"
+                    android:id="@+id/tv_next"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:paddingVertical="@dimen/_16dp"
                     android:textSize="@dimen/_16sp"
-                    android:text="@string/do_analyze"
+                    android:text="@string/next"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:background="@drawable/ic_background_radius_8"
