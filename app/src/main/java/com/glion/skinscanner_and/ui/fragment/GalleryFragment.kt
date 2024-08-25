@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.gallery
+package com.glion.skinscanner_and.ui.fragment
 
 import android.app.Activity
 import android.content.Intent
@@ -32,11 +32,15 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                 val uri = result.data?.data
                 if (uri != null) {
                     val bitmap = Utility.convertUriToBitmap(uri, mContext)
-                    // TODO : 사이즈 판단하여 리사이즈할 수 있는 화면 추가하고 거기에 연결해주는 작업 필요
                     bitmap?.let {
-                        mLoadingDialog.show()
                         Utility.saveBitmapInCache(bitmap, mContext)
-                        startAnalyze(it.copy(Bitmap.Config.ARGB_8888, true))
+                        // 갤러리에서 가져온 사진이  width : 600, height : 450 이 아닐경우 리사이즈
+                        if(bitmap.width > 600 || bitmap.height > 450) {
+                            mParentActivity.changeFragment(ScreenType.Resize)
+                        } else{
+                            mLoadingDialog.show()
+                            startAnalyze(it.copy(Bitmap.Config.ARGB_8888, true))
+                        }
                     }
                 } else {
                     with(mParentActivity) {
