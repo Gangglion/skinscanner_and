@@ -71,6 +71,9 @@ dependencies {
     // Glide
     implementation(libs.glide)
 
+    // Image Cropper
+    implementation(libs.vanniktech.android.image.cropper)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

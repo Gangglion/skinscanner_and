@@ -13,6 +13,9 @@ import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layout.fragment_result), OnClickListener {
@@ -39,18 +42,21 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
     }
 
     private fun setLayout() {
-        with(mBinding) {
-            Glide.with(mContext)
-                .load(Utility.getSavedImage(mContext, mContext.getString(R.string.saved_file_name)))
-                .apply(RequestOptions() // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                )
-                .into(ivPhotoTaken)
-            tvResult.text =  if(mCancerPercent != 0)
-                mContext.getString(R.string.cancer_result_format).format(mCancerResult, mContext.getString(R.string.percent_format).format(mCancerPercent))
-            else
-                mContext.getString(R.string.not_cancer)
+        CoroutineScope(Dispatchers.Main).launch {
+            val bitmap = Utility.getImageToBitmap(mContext, mContext.getString(R.string.saved_file_name))
+            with(mBinding) {
+                Glide.with(mContext)
+                    .load(bitmap)
+                    .apply(RequestOptions() // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                    )
+                    .into(ivPhotoTaken)
+                tvResult.text =  if(mCancerPercent != 0)
+                    mContext.getString(R.string.cancer_result_format).format(mCancerResult, mContext.getString(R.string.percent_format).format(mCancerPercent))
+                else
+                    mContext.getString(R.string.not_cancer)
+            }
         }
     }
 }

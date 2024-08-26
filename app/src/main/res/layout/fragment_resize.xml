@@ -14,25 +14,15 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/_48dp"
+            android:paddingVertical="@dimen/_24dp"
             android:textSize="@dimen/_16sp"
             android:textAlignment="center"
             android:text="@string/drag_area"/>
-        <FrameLayout
+        <com.canhub.cropper.CropImageView
+            android:id="@+id/crop_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_photo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_area"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_background_camera_boundary" />
-        </FrameLayout>
+            android:layout_weight="1"/>
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/tv_do_analyze"
             android:layout_width="match_parent"

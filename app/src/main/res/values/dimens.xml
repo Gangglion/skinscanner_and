@@ -12,4 +12,7 @@
 
     <dimen name="_16sp">16sp</dimen>
     <dimen name="_24sp">24sp</dimen>
+
+
+    <dimen name="_260dp">260dp</dimen>
 </resources>

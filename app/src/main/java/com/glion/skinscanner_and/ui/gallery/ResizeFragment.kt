@@ -6,9 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentResizeBinding
@@ -22,30 +19,22 @@ import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), CancerQuantized.InferenceCallback, OnClickListener {
     private lateinit var mLoadingDialog: LoadingDialog
-    private var mSavedBitmap: Bitmap? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mLoadingDialog = LoadingDialog(mContext, mContext.getString(R.string.wait_for_process_image))
         with(mBinding) {
             CoroutineScope(Dispatchers.Main).launch {
-                mSavedBitmap = Utility.getImageToBitmap(mContext, mContext.getString(R.string.saved_file_name))
-                Glide.with(mContext).load(mSavedBitmap).apply(
-                    // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
-                    RequestOptions()
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                ).into(mBinding.ivPhoto)
+                val bitmap = withContext(Dispatchers.Main) {
+                    Utility.getImageToBitmap(mContext, mContext.getString(R.string.saved_file_name))
+                }
+                cropView.setImageBitmap(bitmap)
+                tvDoAnalyze.setOnClickListener(this@ResizeFragment)
             }
-            ivArea.layoutParams.apply {
-                width = Utility.pxToDp(600f, mContext)
-                height = Utility.pxToDp(450f, mContext)
-            }
-            ivArea.requestLayout()
-            tvDoAnalyze.setOnClickListener(this@ResizeFragment)
         }
     }
 
@@ -86,31 +75,13 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
         },2000L)
     }
 
-    private fun cropImage(originBitmap: Bitmap): Bitmap {
-        with(mBinding) {
-            val heightOriginal = ivPhoto.height
-            val widthOriginal = ivPhoto.width
-            val heightFrame = ivArea.height
-            val widthFrame = ivArea.width
-            val leftFrame = ivArea.left
-            val topFrame = ivArea.top
-            val heightReal = originBitmap.height
-            val widthReal = originBitmap.width
-            val widthFinal = widthFrame * widthReal / widthOriginal
-            val heightFinal = heightFrame * heightReal / heightOriginal
-            val leftFinal = leftFrame * widthReal / widthOriginal
-            val topFinal = topFrame * heightReal / heightOriginal
-            val croppedBitmap = Bitmap.createBitmap(originBitmap, leftFinal, topFinal, widthFinal, heightFinal)
-            Utility.saveBitmapInCache(croppedBitmap, mContext)
-            return croppedBitmap
-        }
-    }
 
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.tv_do_analyze -> {
-                val cropBitmap = cropImage(mSavedBitmap!!)
-                startAnalyze(cropBitmap)
+                val croppedImage = mBinding.cropView.getCroppedImage()!!
+                Utility.saveBitmapInCache(croppedImage, mContext)
+                startAnalyze(croppedImage)
                 mLoadingDialog.show()
             }
         }
