@@ -11,11 +11,11 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.ui.fragment.CameraFragment
-import com.glion.skinscanner_and.ui.fragment.GalleryFragment
-import com.glion.skinscanner_and.ui.fragment.HomeFragment
-import com.glion.skinscanner_and.ui.fragment.ResizeFragment
-import com.glion.skinscanner_and.ui.fragment.ResultFragment
+import com.glion.skinscanner_and.ui.camera.CameraFragment
+import com.glion.skinscanner_and.ui.gallery.GalleryFragment
+import com.glion.skinscanner_and.ui.common.HomeFragment
+import com.glion.skinscanner_and.ui.gallery.ResizeFragment
+import com.glion.skinscanner_and.ui.common.ResultFragment
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home

@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.fragment
+package com.glion.skinscanner_and.ui.common
 
 import android.os.Bundle
 import android.view.View

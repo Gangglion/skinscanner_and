@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragment.ResultFragment"
+        tools:context=".ui.common.ResultFragment"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="@dimen/_16dp">

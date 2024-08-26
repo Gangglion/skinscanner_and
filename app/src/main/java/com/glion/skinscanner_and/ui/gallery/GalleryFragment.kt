@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.fragment
+package com.glion.skinscanner_and.ui.gallery
 
 import android.app.Activity
 import android.content.Intent

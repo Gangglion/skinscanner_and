@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.fragment
+package com.glion.skinscanner_and.ui.camera
 
 import android.graphics.Bitmap
 import android.graphics.Matrix

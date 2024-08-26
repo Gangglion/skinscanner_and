@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragment.ResizeFragment"
+        tools:context=".ui.gallery.ResizeFragment"
         android:orientation="vertical">
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
