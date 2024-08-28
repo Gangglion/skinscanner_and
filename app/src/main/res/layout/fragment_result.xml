@@ -62,18 +62,11 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_re_capture"
+            android:id="@+id/tv_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/_16dp"
-            android:textSize="@dimen/_16sp"
-            android:text="@string/go_main"
-            android:textStyle="bold"
-            android:layout_marginTop="@dimen/_16dp"
-            android:textColor="@color/white"
-            android:background="@drawable/ic_background_radius_8"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:textAlignment="center" />
+            style="@style/DefaultButtonStyle"
+            android:layout_marginTop="@dimen/_16dp" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

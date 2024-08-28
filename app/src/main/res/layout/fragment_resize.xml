@@ -28,14 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
-            android:paddingVertical="@dimen/_16dp"
-            android:textSize="@dimen/_16sp"
+            style="@style/DefaultButtonStyle"
             android:layout_margin="@dimen/_16dp"
-            android:text="@string/do_analyze"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:background="@drawable/ic_background_radius_8"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:textAlignment="center" />
+            android:text="@string/do_analyze" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>
