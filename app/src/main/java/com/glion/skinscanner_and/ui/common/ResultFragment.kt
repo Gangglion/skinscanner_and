@@ -26,17 +26,26 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
             mCancerResult = it.getString(Define.RESULT)
-            mCancerPercent = it.getInt(Define.VALUE)
+            mCancerPercent = it.getInt(Define.VALUE, -1)
         }
-        mBinding.tvReCapture.setOnClickListener(this)
+        // 뒤로가기를 위한 데이터 저장
+        with(mParentActivity) {
+            savedCancerResult = mCancerResult
+            savedPercent = mCancerPercent
+        }
+        mBinding.tvNext.setOnClickListener(this)
         setLayout()
     }
 
     override fun onClick(v: View?) {
         when(v!!.id) {
-            R.id.tv_re_capture -> {
-                Utility.deleteImage(mContext)
-                mParentActivity.changeFragment(ScreenType.Home)
+            R.id.tv_next -> {
+                if(mCancerPercent != -1) { // 암일 경우
+                    mParentActivity.changeFragment(ScreenType.Find)
+                } else { // 암이 아닐 경우
+                    Utility.deleteImage(mContext)
+                    mParentActivity.changeFragment(ScreenType.Home)
+                }
             }
         }
     }
@@ -52,10 +61,13 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
                         .skipMemoryCache(true)
                     )
                     .into(ivPhotoTaken)
-                tvResult.text =  if(mCancerPercent != 0)
-                    mContext.getString(R.string.cancer_result_format).format(mCancerResult, mContext.getString(R.string.percent_format).format(mCancerPercent))
-                else
-                    mContext.getString(R.string.not_cancer)
+                if(mCancerPercent != -1) {
+                    tvResult.text = mContext.getString(R.string.cancer_result_format).format(mCancerResult, mContext.getString(R.string.percent_format).format(mCancerPercent))
+                    tvNext.text = mContext.getString(R.string.find_near_dermatology)
+                } else {
+                    tvResult.text = mContext.getString(R.string.not_cancer)
+                    tvNext.text = mContext.getString(R.string.go_main)
+                }
             }
         }
     }

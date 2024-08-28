@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.common.FindDermatologyFragment"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="가까운 피부과 찾기 화면 구현 예정"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/DefaultButtonStyle"
+            android:text="@string/go_main"
+            android:layout_marginTop="@dimen/_16dp"/>
+
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

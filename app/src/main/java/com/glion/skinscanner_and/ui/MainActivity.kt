@@ -12,13 +12,19 @@ import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.camera.CameraFragment
+import com.glion.skinscanner_and.ui.common.FindDermatologyFragment
 import com.glion.skinscanner_and.ui.gallery.GalleryFragment
 import com.glion.skinscanner_and.ui.common.HomeFragment
 import com.glion.skinscanner_and.ui.gallery.ResizeFragment
 import com.glion.skinscanner_and.ui.common.ResultFragment
+import com.glion.skinscanner_and.util.Define
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home
+
+    // 모델을 통해 나온 결과 MainActivity 에 저장
+    var savedCancerResult: String? = null
+    var savedPercent: Int = -1
 
     private val backPressed = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -31,6 +37,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 }
                 ScreenType.Result -> {
                     changeFragment(ScreenType.Home)
+                }
+                ScreenType.Find -> {
+                    val bundle = Bundle().apply {
+                        putString(Define.RESULT, savedCancerResult)
+                        putInt(Define.VALUE, savedPercent)
+                    }
+                    changeFragment(ScreenType.Result, bundle)
                 }
             }
         }
@@ -74,6 +87,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
             ScreenType.Result -> {
                 val fragment = ResultFragment()
+                if(bundle != null) fragment.arguments = bundle
+                supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
+            }
+            ScreenType.Find -> {
+                val fragment = FindDermatologyFragment()
                 if(bundle != null) fragment.arguments = bundle
                 supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
             }
