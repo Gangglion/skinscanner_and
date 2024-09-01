@@ -13,10 +13,11 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="가까운 피부과 찾기 화면 구현 예정"/>
+        <com.kakao.vectormap.MapView
+            android:id="@+id/kakao_map"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_temp"
@@ -24,7 +25,7 @@
             android:layout_height="wrap_content"
             style="@style/DefaultButtonStyle"
             android:text="@string/go_main"
-            android:layout_marginTop="@dimen/_16dp"/>
+            android:layout_marginVertical="@dimen/_16dp"/>
 
 
 
