@@ -3,7 +3,7 @@ package com.glion.skinscanner_and.util.tflite
 import android.content.Context
 import android.graphics.Bitmap
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.util.DLog
+import com.glion.skinscanner_and.common.DLog
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -13,7 +13,6 @@ import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.exp
-import kotlin.math.roundToInt
 
 class CancerQuantized(
     private val mContext: Context,

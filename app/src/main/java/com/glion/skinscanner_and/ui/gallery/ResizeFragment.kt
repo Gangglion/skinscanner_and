@@ -12,7 +12,7 @@ import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.Define
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType

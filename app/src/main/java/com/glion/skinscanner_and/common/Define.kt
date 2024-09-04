@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.util
+package com.glion.skinscanner_and.common
 
 import com.glion.skinscanner_and.BuildConfig
 

@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.common.FindDermatologyFragment"
+        tools:context=".ui.find_dermatology.FindDermatologyFragment"
         android:gravity="center"
         android:orientation="vertical">
 

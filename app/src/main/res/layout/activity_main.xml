@@ -17,7 +17,7 @@
             android:id="@+id/fc_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="com.glion.skinscanner_and.ui.common.HomeFragment" />
+            android:name="com.glion.skinscanner_and.ui.home.HomeFragment" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

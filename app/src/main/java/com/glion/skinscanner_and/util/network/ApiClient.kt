@@ -1,7 +1,7 @@
 package com.glion.skinscanner_and.util.network
 
 import com.glion.skinscanner_and.BuildConfig
-import com.glion.skinscanner_and.util.Define
+import com.glion.skinscanner_and.common.Define
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import okhttp3.Interceptor

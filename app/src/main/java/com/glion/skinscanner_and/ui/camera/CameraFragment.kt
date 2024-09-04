@@ -21,12 +21,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
+import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.DLog
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
@@ -125,7 +125,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
         mImageCapture?.takePicture(ContextCompat.getMainExecutor(mContext), object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                val bitmap = Bitmap.createBitmap(image.toBitmap(), 0, 0, image.toBitmap().width, image.toBitmap().height, Matrix().also{ it.setRotate(90F) }, true)
+                val bitmap = Bitmap.createBitmap(image.toBitmap(), 0, 0, image.width, image.height, Matrix().also{ it.setRotate(90F) }, true)
                 val croppedBitmap = cropImage(bitmap)
                 Utility.saveBitmapInCache(croppedBitmap, mContext)
                 image.close()

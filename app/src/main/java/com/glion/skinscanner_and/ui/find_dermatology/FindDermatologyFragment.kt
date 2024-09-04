@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.common
+package com.glion.skinscanner_and.ui.find_dermatology
 
 import android.os.Bundle
 import android.view.View
@@ -7,7 +7,7 @@ import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.DLog
+import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.util.network.ApiClient
 import com.glion.skinscanner_and.util.response.Document
 import com.glion.skinscanner_and.util.response.ResponseKeyword

@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.common
+package com.glion.skinscanner_and.ui.home
 
 import android.Manifest
 import android.os.Build
@@ -15,7 +15,7 @@ import com.glion.skinscanner_and.databinding.FragmentHomeBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.checkPermission
+import com.glion.skinscanner_and.extension.checkPermission
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fragment_home), OnClickListener {
     companion object {
