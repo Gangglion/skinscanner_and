@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -13,11 +14,13 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.kakao.vectormap.MapView
-            android:id="@+id/kakao_map"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rc_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_temp"

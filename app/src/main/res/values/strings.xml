@@ -19,6 +19,7 @@
     <string name="find_near_dermatology">가까운 피부과 찾기</string>
     <string name="fail_capture">촬영에 실패했습니다. 다시 시도해주세요</string>
     <string name="fail_analyze">분석에 실패했습니다. 다시 시도해주세요</string>
+    <string name="format_dist" formatted="false">%.1f km</string>
 
     <string name="model_name">cancer_quantized.tflite</string>
     <string name="cancer_result_format" formatted="false">진단 결과,\n%s 일 가능성이 %s 입니다.</string>

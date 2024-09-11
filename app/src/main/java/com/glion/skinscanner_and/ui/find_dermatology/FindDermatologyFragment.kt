@@ -4,23 +4,23 @@ import android.os.Bundle
 import android.view.View
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
+import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
+import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.glion.skinscanner_and.util.network.ApiClient
-import com.glion.skinscanner_and.util.response.Document
 import com.glion.skinscanner_and.util.response.ResponseKeyword
-import com.glion.skinscanner_and.util.response.ResponseSearch
-import com.kakao.vectormap.KakaoMap
-import com.kakao.vectormap.KakaoMapReadyCallback
-import com.kakao.vectormap.LatLng
-import com.kakao.vectormap.MapLifeCycleCallback
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, MainActivity>(R.layout.fragment_find_dermatology) {
+    private lateinit var mListAdapter: DermatologyListAdapter
+    private val mDataList: MutableList<DermatologyData> = mutableListOf()
+    private var mSearchPage = 1
     // TODO
     //  1. 위치 권한 허용 받기 - 허용 안했을 시 팝업 노출 및 사용 불가
     //  2. 현재 내 위치로 KakaoMap 세팅
@@ -32,26 +32,52 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         mBinding.btnTemp.setOnClickListener {
             mParentActivity.changeFragment(ScreenType.Home)
         }
-        startMap()
     }
 
     override fun onResume() {
         super.onResume()
-        ApiClient.api.searchAddress("안현로 35").enqueue(object : Callback<ResponseSearch> {
-            override fun onResponse(p0: Call<ResponseSearch>, p1: Response<ResponseSearch>) {
-                DLog.d("Api Success")
-            }
+        getDermatologyData()
+    }
 
-            override fun onFailure(p0: Call<ResponseSearch>, e: Throwable) {
-                DLog.d("Api fail")
-            }
-        })
+    override fun onPause() {
+        super.onPause()
+    }
 
+    private fun getDermatologyData() {
         // temp : 테스트를 위해 집 주소 근처로 세팅 - 범위 3키로 고정
-        ApiClient.api.searchKeyword("피부과", "HP8", "126.874799681274", "37.4675176060977", 3000).enqueue(object : Callback<ResponseKeyword> {
-            override fun onResponse(p0: Call<ResponseKeyword>, p1: Response<ResponseKeyword>) {
+        ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, "126.874799681274", "37.4675176060977", 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
+            override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
                 DLog.d("Api Success")
-                // TODO : 리사이클러뷰 세팅, 클릭 시, 레이아웃 확장되며 지도 시작, 스크롤 금지, 확대/축소레벨 맞게 설정
+                if(response.isSuccessful) {
+                    // TODO : 리사이클러뷰 세팅, 클릭 시, 레이아웃 확장되며 지도 시작, 스크롤 금지, 확대/축소레벨 맞게 설정
+                    val body = response.body()
+                    if(body != null) {
+                        for(item in body.documents) {
+                            mDataList.add(
+                                DermatologyData(
+                                    dermatologyTitle = item.placeName,
+                                    dermatologyUrl = item.placeUrl,
+                                    dermatologyNumber = item.phone,
+                                    dermatologyAddr = item.addressName,
+                                    dermatologyDist = item.distance,
+                                    dermatologyLat = item.y.toDouble(),
+                                    dermatologyLng = item.x.toDouble()
+                                )
+                            )
+                        }
+                        if(!body.meta.is_end) {
+                            mSearchPage++
+                            getDermatologyData()
+                        } else {
+                            sortList()
+                            setAdapter()
+                        }
+                    } else {
+
+                    }
+                } else {
+
+                }
             }
 
             override fun onFailure(p0: Call<ResponseKeyword>, p1: Throwable) {
@@ -60,42 +86,16 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         })
     }
 
-    override fun onPause() {
-        super.onPause()
-        mBinding.kakaoMap.pause()
+    /**
+     * 거리가 가까운 순으로 리스트 정렬
+     */
+    private fun sortList() {
+        val comparator = compareBy<DermatologyData> { it.dermatologyDist.toFloat() }
+        mDataList.sortWith(comparator)
     }
 
-    private fun startMap(item: Document? = null) {
-        mBinding.kakaoMap.start(
-            object : MapLifeCycleCallback() {
-                override fun onMapDestroy() {
-                    // 지도 API 가 정상적으로 종료될 떄 호출됨
-                    DLog.d("지도 API 가 정상적으로 종료됨")
-                }
-
-                override fun onMapError(e: Exception?) {
-                    // 인증 실패 및 지도 사용 중 에러 발생 시 호출 됨
-                    DLog.e("인증 실패 및 지도 사용 중 에러 발생", e)
-                }
-            },
-            object : KakaoMapReadyCallback() {
-                override fun onMapReady(p0: KakaoMap) {
-                    // 인증 API 가 정상적으로 실행될 때 호출됨
-                    DLog.d("인증 API 정상적으로 실행 됨")
-                }
-
-                override fun getPosition(): LatLng {
-                    return if(item == null) {
-                        LatLng.from(37.467517, 126.874799)
-                    } else {
-                        LatLng.from(item.y.toDouble(), item.x.toDouble())
-                    }
-                }
-
-                override fun getZoomLevel(): Int {
-                    return 14
-                }
-            })
-        mBinding.kakaoMap.resume()
+    private fun setAdapter() {
+        mListAdapter = DermatologyListAdapter(mContext, mDataList)
+        mBinding.rcList.adapter = mListAdapter
     }
 }
