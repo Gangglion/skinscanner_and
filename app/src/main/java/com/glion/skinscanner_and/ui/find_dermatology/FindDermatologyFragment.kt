@@ -1,7 +1,11 @@
 package com.glion.skinscanner_and.ui.find_dermatology
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.common.DLog
@@ -13,6 +17,13 @@ import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdap
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.glion.skinscanner_and.util.network.ApiClient
 import com.glion.skinscanner_and.util.response.ResponseKeyword
+import com.google.android.gms.location.CurrentLocationRequest
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,35 +32,33 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     private lateinit var mListAdapter: DermatologyListAdapter
     private val mDataList: MutableList<DermatologyData> = mutableListOf()
     private var mSearchPage = 1
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
     // TODO
-    //  1. 위치 권한 허용 받기 - 허용 안했을 시 팝업 노출 및 사용 불가
-    //  2. 현재 내 위치로 KakaoMap 세팅
-    //  3. UI 어떤식으로 할지? 내 생각엔 리스트 띄워주고, 클릭하면 리스트 아래로 확장되서 병원 위치랑 전화걸기 정도 나오도록?
-    //  3-1. 리스트에 표시해야 할 정보 - 내 위치에서 얼마나 떨어져있는지, 병원 이름, 주소, 전화걸기, 웹페이지 열기
+    //  1. 위치 권한 허용 받기 - 허용 안했을 시 팝업 노출 추가
+    //  2. 리사이클러뷰 페이지네이션 추가
+    //  3. url 클릭 시 카카오맵 열리는 로직 불안함. 수정 필요
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext as Activity)
+        mFusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if(location != null) {
+                getDermatologyData(location.longitude.toString(), location.latitude.toString())
+            } else { // 재부팅으로 인해 캐시에 저장된 위치가 없을 경우, 새로 위치 갱신 후 카카오맵 세팅
+                getCurrentLocation()
+            }
+        }
 
         mBinding.btnTemp.setOnClickListener {
             mParentActivity.changeFragment(ScreenType.Home)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        getDermatologyData()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    private fun getDermatologyData() {
-        // temp : 테스트를 위해 집 주소 근처로 세팅 - 범위 3키로 고정
-        ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, "126.874799681274", "37.4675176060977", 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
+    private fun getDermatologyData(x: String, y: String) {
+        ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, x, y, 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
             override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
                 DLog.d("Api Success")
                 if(response.isSuccessful) {
-                    // TODO : 리사이클러뷰 세팅, 클릭 시, 레이아웃 확장되며 지도 시작, 스크롤 금지, 확대/축소레벨 맞게 설정
                     val body = response.body()
                     if(body != null) {
                         for(item in body.documents) {
@@ -67,7 +76,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
                         }
                         if(!body.meta.is_end) {
                             mSearchPage++
-                            getDermatologyData()
+                            getDermatologyData(x, y)
                         } else {
                             sortList()
                             setAdapter()
@@ -97,5 +106,41 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     private fun setAdapter() {
         mListAdapter = DermatologyListAdapter(mContext, mDataList)
         mBinding.rcList.adapter = mListAdapter
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation() {
+        mFusedLocationClient.getCurrentLocation(createCurrentLocationRequest(), createCancellationToken())
+            .addOnSuccessListener {
+                getDermatologyData(it.longitude.toString(), it.latitude.toString())
+            }
+            .addOnFailureListener {
+                Toast.makeText(mContext, "현재 위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                getDermatologyData("126.9782038", "37.5665851")
+            }
+    }
+
+    /**
+     * 현재 위치 가져올 수 있는 요청 Builder 생성 반환
+     */
+    private fun createCurrentLocationRequest() =
+        CurrentLocationRequest.Builder()
+            .setDurationMillis(10000)
+            .setMaxUpdateAgeMillis(10000)
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .build()
+
+    /**
+     * 현재 위치 가져오기 실패했을때의 토큰 반환
+     */
+    private fun createCancellationToken() : CancellationToken = object : CancellationToken() {
+        override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken {
+            return CancellationTokenSource().token
+        }
+
+        override fun isCancellationRequested(): Boolean {
+            return false
+        }
+
     }
 }

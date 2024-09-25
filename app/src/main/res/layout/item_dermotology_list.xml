@@ -80,14 +80,48 @@
                     android:paddingVertical="@dimen/_4dp"
                     android:text="경기도 광명시 안현로 35, OOO빌딩 4층" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tv_item_number"
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:orientation="horizontal"
                     android:layout_marginTop="@dimen/_4dp"
-                    android:drawableStart="@drawable/ic_phone"
-                    android:text="02-1233-1233" />
+                    android:layout_gravity="center"
+                    android:gravity="center">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_phone"/>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_item_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:linksClickable="true"
+                        android:autoLink="phone"
+                        android:text="02-1233-1233"
+                        android:onClick="clickPhone"/>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_4dp"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_web_find"/>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_item_url"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:linksClickable="true"
+                        android:layout_gravity="center"
+                        android:autoLink="web"
+                        android:text="www.naver.com"
+                        android:onClick="clickWeb"/>
+                </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
 

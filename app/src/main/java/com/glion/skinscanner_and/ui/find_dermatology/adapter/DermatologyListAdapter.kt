@@ -1,7 +1,11 @@
 package com.glion.skinscanner_and.ui.find_dermatology.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
@@ -41,8 +45,19 @@ class DermatologyListAdapter(
                 tvItemAddr.text = item.dermatologyAddr
                 tvItemDist.text = mContext.getString(R.string.format_dist).format(item.dermatologyDist.toFloat() / 1000)
                 tvItemNumber.text = item.dermatologyNumber
+                tvItemUrl.text = item.dermatologyUrl
                 setMap(mvItem, item)
             }
+        }
+
+        private fun clickPhone() {
+            val phone = binding.tvItemNumber.text.toString()
+            val intentDial = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+            mContext.startActivity(intentDial)
+        }
+
+        private fun clickWeb() {
+            // TODO : 열리긴 열리는데, 아주 불안함. 다른 방법 찾아야 할듯
         }
     }
 
