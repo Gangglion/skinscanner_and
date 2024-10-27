@@ -4,6 +4,10 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    // google-service
+    id("com.google.gms.google-services")
+    // firebase crashlytics
+    id("com.google.firebase.crashlytics")
 }
 
 val properties = Properties().apply {
@@ -99,6 +103,13 @@ dependencies {
 
     // Google play service location
     implementation(libs.play.services.location)
+
+    // firebase bom
+    implementation(platform(libs.firebase.bom))
+    // firebase crashlytics
+    implementation(libs.firebase.crashlytics)
+    // firebase analytics
+    implementation(libs.firebase.analytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
