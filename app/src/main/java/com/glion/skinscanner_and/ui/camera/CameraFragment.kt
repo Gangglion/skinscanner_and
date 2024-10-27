@@ -25,7 +25,6 @@ import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
-import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
@@ -43,7 +42,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
-    private lateinit var mLoadingDialog: LoadingDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,7 +57,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             tvReCapture.setOnClickListener(this@CameraFragment)
             tvDoAnalyze.setOnClickListener(this@CameraFragment)
         }
-        mLoadingDialog = LoadingDialog(mContext, mContext.getString(R.string.wait_for_process_image))
     }
 
     override fun onDestroyView() {
@@ -114,6 +111,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 startCamera()
             }
             mBinding.tvDoAnalyze.id -> {
+                mLoadingDialog.setMessage(mContext.getString(R.string.wait_for_process_image))
                 mLoadingDialog.show()
                 startAnalyze()
             }

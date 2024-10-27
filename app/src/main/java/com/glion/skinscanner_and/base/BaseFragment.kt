@@ -9,11 +9,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 
 abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private val layoutResId: Int) : Fragment() {
     protected lateinit var mBinding: T
     protected lateinit var mParentActivity: A
     protected lateinit var mContext: Context
+
+    lateinit var mLoadingDialog: LoadingDialog
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -24,6 +27,7 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mParentActivity = requireActivity() as A
+        mLoadingDialog = LoadingDialog(mContext)
     }
 
     override fun onCreateView(

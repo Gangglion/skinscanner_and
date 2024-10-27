@@ -8,11 +8,10 @@ import android.view.View
 import android.view.View.OnClickListener
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
-import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
@@ -22,11 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), CancerQuantized.InferenceCallback, OnClickListener {
-    private lateinit var mLoadingDialog: LoadingDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mLoadingDialog = LoadingDialog(mContext, mContext.getString(R.string.wait_for_process_image))
         with(mBinding) {
             CoroutineScope(Dispatchers.Main).launch {
                 val bitmap = withContext(Dispatchers.Main) {

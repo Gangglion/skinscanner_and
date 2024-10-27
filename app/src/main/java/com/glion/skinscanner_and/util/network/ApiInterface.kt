@@ -6,6 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ApiInterface {
+    /**
+     * 카카오맵 API - 현재위치에서 키워드로 찾기
+     */
     @GET("search/keyword")
     fun searchKeyword(
         @Query("query") query: String,

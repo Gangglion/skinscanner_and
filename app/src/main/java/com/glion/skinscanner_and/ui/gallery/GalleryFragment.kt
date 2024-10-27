@@ -11,11 +11,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentGalleryBinding
 import com.glion.skinscanner_and.ui.MainActivity
-import com.glion.skinscanner_and.ui.dialog.LoadingDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
@@ -24,8 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.layout.fragment_gallery), CancerQuantized.InferenceCallback {
-    private lateinit var mLoadingDialog: LoadingDialog
-
     private val galleryResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         when(result.resultCode) {
             Activity.RESULT_OK -> {
@@ -38,6 +35,7 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                         if(bitmap.width > 600 || bitmap.height > 450) {
                             mParentActivity.changeFragment(ScreenType.Resize)
                         } else{
+                            mLoadingDialog.setMessage(mContext.getString(R.string.wait_for_process_image))
                             mLoadingDialog.show()
                             startAnalyze(it.copy(Bitmap.Config.ARGB_8888, true))
                         }
@@ -66,7 +64,6 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
             action = Intent.ACTION_GET_CONTENT
         }
         galleryResultLauncher.launch(intent)
-        mLoadingDialog = LoadingDialog(mContext, mContext.getString(R.string.wait_for_process_image))
     }
 
     private fun startAnalyze(selectedImage: Bitmap?) {
