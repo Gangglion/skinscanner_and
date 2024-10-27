@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
-import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
@@ -31,7 +29,7 @@ import com.kakao.vectormap.mapwidget.component.Orientation
 
 class DermatologyListAdapter(
     private val mContext: Context,
-    private val itemList: List<DermatologyData>
+    private val itemList: MutableList<DermatologyData>
 ) : RecyclerView.Adapter<DermatologyListAdapter.ViewHolder>() {
     companion object {
         const val LABEL_ID = "iconLabel"
@@ -76,6 +74,23 @@ class DermatologyListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(itemList[position])
+    }
+
+    /**
+     * 아이템 추가
+     */
+    fun addItem(addItem: List<DermatologyData>) {
+        itemList.addAll(addItem)
+        sortList(itemList)
+        notifyItemRangeChanged(0, itemList.size)
+    }
+
+    /**
+     * 거리가 가까운 순으로 리스트 정렬
+     */
+    private fun sortList(dataList: MutableList<DermatologyData>) {
+        val comparator = compareBy<DermatologyData> { it.dermatologyDist.toFloat() }
+        dataList.sortWith(comparator)
     }
 
     /**
@@ -147,22 +162,5 @@ class DermatologyListAdapter(
             isVisible = false
         }
         kakaoMap.mapWidgetManager?.infoWindowLayer?.addInfoWindow(infoWidgetOptions)?.show()
-
-        // MapWidget 방식 사용 시
-//        val mainLayout = GuiLayout(Orientation.Horizontal)
-//        mainLayout.setPadding(20, 20, 20, 10)
-//
-//        val bgImage = GuiImage(R.drawable.window_body, true)
-//        bgImage.setFixedArea(7, 7, 7, 7)
-//        mainLayout.setBackground(bgImage)
-//
-//        val text = GuiText(item.dermatologyTitle)
-//        text.setTextSize(30)
-//        mainLayout.addView(text)
-//
-//        val options = MapWidgetOptions.from(MapGravity.CENTER, 0, -90) // MapWidget 의 포지션 잡아줌
-//        options.rootView = mainLayout
-//
-//        kakaoMap.mapWidgetManager?.mapWidgetLayer?.addMapWidget(options)?.show()
     }
 }
