@@ -11,7 +11,7 @@ plugins {
 }
 
 val properties = Properties().apply {
-    load(FileInputStream(rootProject.file("local.properties")))
+    load(FileInputStream(rootProject.file("secret.properties")))
 }
 
 android {

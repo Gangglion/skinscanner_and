@@ -10,7 +10,7 @@ object DLog {
     }
 
     fun v(msg: String) {
-        Log.e(TAG, msg)
+        Log.v(TAG, msg)
     }
 
     fun i(msg: String) {
