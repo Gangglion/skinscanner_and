@@ -31,7 +31,7 @@ class CommonDialog(
     private val dialogType: CommonDialogType = CommonDialogType.OneButton,
     private val title: String = "",
     private val contents: String = "",
-    private val isCancelable: Boolean = true,
+    private val isCancelable: Boolean = false,
     private val leftBtnStr: String? = null,
     private val rightBtnStr: String? = null,
     private val singleBtnStr: String? = null,

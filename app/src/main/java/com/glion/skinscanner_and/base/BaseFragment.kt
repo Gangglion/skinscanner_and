@@ -50,7 +50,7 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
         dialogType: CommonDialogType,
         title: String = "",
         contents: String = "",
-        isCancelable: Boolean = true,
+        isCancelable: Boolean = false,
         leftBtnStr: String? = null,
         rightBtnStr: String? = null,
         singleBtnStr: String? = null,

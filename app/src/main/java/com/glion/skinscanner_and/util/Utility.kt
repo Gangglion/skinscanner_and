@@ -1,14 +1,18 @@
 package com.glion.skinscanner_and.util
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.provider.Settings
 import android.util.DisplayMetrics
+import androidx.core.content.ContextCompat
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.common.Define
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -108,5 +112,22 @@ object Utility{
         }
 
         return updateType
+    }
+
+    /**
+     * 마켓 이동
+     */
+    fun goMarket(context: Context) {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Define.MARKET_URL)))
+    }
+
+    /**
+     * 앱 설정으로 이동
+     */
+    fun goSetting(context: Context) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse(context.getString(R.string.package_format).format(context.packageName)))
+        intent.addCategory(Intent.CATEGORY_DEFAULT)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        ContextCompat.startActivity(context, intent, null)
     }
 }

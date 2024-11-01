@@ -18,6 +18,8 @@ import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.FragmentResultBinding
 import com.glion.skinscanner_and.extension.checkPermission
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.dialog.CommonDialog
+import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
 import com.google.android.gms.common.api.ResolvableApiException
@@ -51,7 +53,17 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
         if(it[requestPermissionLocation[0]]!! && it[requestPermissionLocation[1]]!!) { // 권한을 둘다 허용
             checkLocationSetting()
         } else { // 하나라도 권한을 허용하지 않았다면
-            // TODO : 권한 허용을 위한 다이어로그 띄워주어야 함
+            showDialog(
+                dialogType = CommonDialogType.TwoButton,
+                title = mContext.getString(R.string.default_dialog_title),
+                contents = mContext.getString(R.string.permission_dialog_contents_location),
+                listener = object : CommonDialog.DialogButtonClick {
+                    override fun rightBtnClick() {
+                        super.rightBtnClick()
+                        Utility.goSetting(mContext)
+                    }
+                }
+            )
         }
     }
 
@@ -170,6 +182,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
                         mParentActivity.changeFragment(ScreenType.Find)
                     }
                     Activity.RESULT_CANCELED -> {
+                        checkLocationSetting()
                         Toast.makeText(mContext, "기기 위치 기능을 사용 설정 해 주세요", Toast.LENGTH_SHORT).show()
                     }
                 }

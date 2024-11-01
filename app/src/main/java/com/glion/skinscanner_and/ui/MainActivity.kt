@@ -1,9 +1,7 @@
 package com.glion.skinscanner_and.ui
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -132,7 +130,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         listener = object : CommonDialog.DialogButtonClick {
                             override fun rightBtnClick() {
                                 super.rightBtnClick()
-                                mContext.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Define.MARKET_URL)))
+                                Utility.goMarket(mContext)
                             }
                         }
                     )
@@ -143,12 +141,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                         dialogType = CommonDialogType.OneButton,
                         title = mContext.getString(R.string.default_dialog_title),
                         contents = mContext.getString(R.string.update_force_dialog_contents),
-                        isCancelable = false,
                         singleBtnStr = mContext.getString(R.string.update_now),
                         listener = object : CommonDialog.DialogButtonClick {
                             override fun singleBtnClick() {
                                 super.singleBtnClick()
-                                mContext.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Define.MARKET_URL)))
+                                Utility.goMarket(mContext)
                             }
                         }
                     )

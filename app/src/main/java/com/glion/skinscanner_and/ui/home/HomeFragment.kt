@@ -5,17 +5,19 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentHomeBinding
+import com.glion.skinscanner_and.extension.checkPermission
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.camera.CameraFragment
+import com.glion.skinscanner_and.ui.dialog.CommonDialog
+import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.extension.checkPermission
+import com.glion.skinscanner_and.util.Utility
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fragment_home), OnClickListener {
     companion object {
@@ -28,11 +30,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         private const val READ_MEDIA_VISUAL_USER_SELECTED = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
     }
 
-    private val responseCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+    private val responseCameraPermission = registerForActivityResult(RequestPermission()) { isGranted ->
         if(isGranted) {
             mParentActivity.changeFragment(ScreenType.Camera)
         } else {
-            mParentActivity.showToast(mContext.getString(R.string.denied_permission))
+            showDeniedCameraPermissionDialog()
         }
     }
 
@@ -40,7 +42,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         if (isGranted) { // 권한을 허용했다면
             mParentActivity.changeFragment(ScreenType.Gallery)
         } else { // 권한을 허용하지 않았다면
-            mParentActivity.showToast(mContext.getString(R.string.denied_gallery))
+            showDeniedMediaPermissionDialog()
         }
     }
 
@@ -81,7 +83,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
                 mParentActivity.changeFragment(ScreenType.Camera)
             }
             ActivityCompat.shouldShowRequestPermissionRationale(mParentActivity, Manifest.permission.CAMERA) -> {
-                mParentActivity.showToast(mContext.getString(R.string.denied_permission))
+                showDeniedCameraPermissionDialog()
             }
             else -> {
                 responseCameraPermission.launch(Manifest.permission.CAMERA)
@@ -96,12 +98,56 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             }
 
             shouldShowRequestPermissionRationale(permission) -> {
-                mParentActivity.showToast(mContext.getString(R.string.denied_permission))
+                showDeniedMediaPermissionDialog()
             }
 
             else -> { // 권한 허용 안되어있을 때
                 requestGalleryPermission.launch(permission)
             }
         }
+    }
+
+    /**
+     * 카메라 권한 허옹하지 않았을때 팝업
+     */
+    private fun showDeniedCameraPermissionDialog() {
+        showDialog(
+            dialogType = CommonDialogType.TwoButton,
+            title = mContext.getString(R.string.default_dialog_title),
+            contents = mContext.getString(R.string.permission_dialog_contents_camera),
+            listener = object : CommonDialog.DialogButtonClick {
+                override fun leftBtnClick() {
+                    super.leftBtnClick()
+                    mParentActivity.showToast(mContext.getString(R.string.denied_permission_camera))
+                }
+
+                override fun rightBtnClick() {
+                    super.rightBtnClick()
+                    Utility.goSetting(mContext)
+                }
+            }
+        )
+    }
+
+    /**
+     * 사진 및 미디어 권한 허용하지 않았을때 팝업
+     */
+    private fun showDeniedMediaPermissionDialog() {
+        showDialog(
+            dialogType = CommonDialogType.TwoButton,
+            title = mContext.getString(R.string.default_dialog_title),
+            contents = mContext.getString(R.string.permission_dialog_contents_gallery),
+            listener = object : CommonDialog.DialogButtonClick {
+                override fun leftBtnClick() {
+                    super.leftBtnClick()
+                    mParentActivity.showToast(mContext.getString(R.string.denied_permission_gallery))
+                }
+
+                override fun rightBtnClick() {
+                    super.rightBtnClick()
+                    Utility.goSetting(mContext)
+                }
+            }
+        )
     }
 }

@@ -33,7 +33,7 @@ abstract class BaseActivity<T: ViewDataBinding>(private val layoutResId: Int) : 
         dialogType: CommonDialogType,
         title: String = "",
         contents: String = "",
-        isCancelable: Boolean = true,
+        isCancelable: Boolean = false,
         leftBtnStr: String? = null,
         rightBtnStr: String? = null,
         singleBtnStr: String? = null,
