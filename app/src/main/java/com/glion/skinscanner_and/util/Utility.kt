@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.DisplayMetrics
+import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.common.DLog
 import kotlinx.coroutines.Dispatchers
@@ -84,5 +85,28 @@ object Utility{
      */
     fun deleteImage(mContext: Context) {
         getSavedImage(mContext, mContext.getString(R.string.saved_file_name))?.delete()
+    }
+
+    /**
+     * 앱 버전 비교
+     * @param [getVersion] 서버에 저장된 버전
+     * @param [getType] 서버에 저장된 업데이트 타입
+     */
+    fun compareAppVersion(getVersion: String, getType: Int): Int {
+        var updateType = 0
+        val currentVersion = BuildConfig.VERSION_NAME.split(".")
+        val getVersionSplit = getVersion.split(".")
+
+        if(getVersionSplit.size == 3) {
+            if (
+                (getVersionSplit[0].toInt() > currentVersion[0].toInt()) ||
+                (getVersionSplit[0].toInt() == currentVersion[0].toInt() && getVersionSplit[1].toInt() > currentVersion[1].toInt()) ||
+                (getVersionSplit[0].toInt() == currentVersion[0].toInt() && getVersionSplit[1].toInt() == currentVersion[1].toInt() && getVersionSplit[2].toInt() > currentVersion[2].toInt())
+            ) {
+                updateType = getType
+            }
+        }
+
+        return updateType
     }
 }

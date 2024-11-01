@@ -23,7 +23,7 @@ android {
         minSdk = 29
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -110,6 +110,8 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     // firebase analytics
     implementation(libs.firebase.analytics)
+    // firebase realtime database
+    implementation(libs.firebase.database)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

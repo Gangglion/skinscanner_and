@@ -10,4 +10,5 @@ object Define {
     const val KAKAO_MAP_KEY = BuildConfig.KAKAO_MAP_KEY
     const val KAKAO_REST_KEY = BuildConfig.KAKAO_REST_KEY
     const val BASE_URL = BuildConfig.BASE_URL
+    const val MARKET_URL = "https://play.google.com/store/apps/details?id=com.glion.skinscanner_and"
 }

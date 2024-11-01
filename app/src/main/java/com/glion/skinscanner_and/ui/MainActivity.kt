@@ -1,23 +1,32 @@
 package com.glion.skinscanner_and.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseActivity
+import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
-import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.camera.CameraFragment
+import com.glion.skinscanner_and.ui.dialog.CommonDialog
+import com.glion.skinscanner_and.ui.dialog.CommonDialogType
+import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.FindDermatologyFragment
 import com.glion.skinscanner_and.ui.gallery.GalleryFragment
-import com.glion.skinscanner_and.ui.home.HomeFragment
 import com.glion.skinscanner_and.ui.gallery.ResizeFragment
+import com.glion.skinscanner_and.ui.home.HomeFragment
 import com.glion.skinscanner_and.ui.result.ResultFragment
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.util.Utility
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home
@@ -60,6 +69,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             insets
         }
         onBackPressedDispatcher.addCallback(backPressed)
+
+        // note : 앱 버전 체크
+        checkVersion()
     }
 
     fun changeFragment(type: ScreenType, bundle: Bundle? = null) {
@@ -97,4 +109,60 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             }
         }
     }
+
+    /**
+     * 앱 버전 체크
+     */
+    private fun checkVersion() {
+        mLoadingDialog.show()
+        Firebase.database.reference.get().addOnSuccessListener {
+            mLoadingDialog.dismiss()
+            val serverVersion: AppVersion = it.getValue(AppVersion::class.java)!!
+            val flag = Utility.compareAppVersion(serverVersion.versionName, serverVersion.versionType)
+            when(flag) {
+                0 -> { /* note : 업데이트 하지 않음 */ }
+                1 -> {
+                    // note : 선택업데이트
+                    showDialog(
+                        dialogType = CommonDialogType.TwoButton,
+                        title = mContext.getString(R.string.default_dialog_title),
+                        contents = mContext.getString(R.string.update_dialog_contents),
+                        leftBtnStr = mContext.getString(R.string.update_later),
+                        rightBtnStr = mContext.getString(R.string.update_now),
+                        listener = object : CommonDialog.DialogButtonClick {
+                            override fun rightBtnClick() {
+                                super.rightBtnClick()
+                                mContext.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Define.MARKET_URL)))
+                            }
+                        }
+                    )
+                }
+                2 -> {
+                    // note : 강제업데이트
+                    showDialog(
+                        dialogType = CommonDialogType.OneButton,
+                        title = mContext.getString(R.string.default_dialog_title),
+                        contents = mContext.getString(R.string.update_force_dialog_contents),
+                        isCancelable = false,
+                        singleBtnStr = mContext.getString(R.string.update_now),
+                        listener = object : CommonDialog.DialogButtonClick {
+                            override fun singleBtnClick() {
+                                super.singleBtnClick()
+                                mContext.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Define.MARKET_URL)))
+                            }
+                        }
+                    )
+                }
+            }
+        }.addOnFailureListener {
+            mLoadingDialog.dismiss()
+            DLog.e("Error Getting Data", it)
+            // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
+        }
+    }
+
+    data class AppVersion(
+        val versionName: String = BuildConfig.VERSION_NAME,
+        val versionType: Int = 0
+    )
 }

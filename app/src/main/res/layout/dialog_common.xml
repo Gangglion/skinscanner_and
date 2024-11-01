@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ll_dialog_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center"
+        android:background="@drawable/ic_background_radius_8"
+        android:backgroundTint="@color/white"
+        android:paddingVertical="@dimen/_24dp"
+        android:paddingHorizontal="@dimen/_24dp"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:paddingVertical="@dimen/_8dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:text="@string/default_dialog_title"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_dialog_contents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:paddingVertical="@dimen/_16dp"
+            android:text="Contents"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/_8dp">
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/ll_two_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible">
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_left"
+                    style="@style/DefaultButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/background_elevation"
+                    android:layout_weight="1"
+                    android:text="LeftBtn"
+                    android:textColor="@color/black"/>
+                <Space
+                    android:layout_width="@dimen/_8dp"
+                    android:layout_height="wrap_content"/>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_right"
+                    style="@style/DefaultButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="RightBtn"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/ll_one_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_single"
+                    style="@style/DefaultButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Single"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </FrameLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>
