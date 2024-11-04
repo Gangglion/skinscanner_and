@@ -29,7 +29,7 @@ import com.kakao.vectormap.mapwidget.component.Orientation
 
 class DermatologyListAdapter(
     private val mContext: Context,
-    private val itemList: MutableList<DermatologyData>
+    private val itemList: List<DermatologyData>
 ) : RecyclerView.Adapter<DermatologyListAdapter.ViewHolder>() {
     companion object {
         const val LABEL_ID = "iconLabel"
@@ -74,23 +74,6 @@ class DermatologyListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(itemList[position])
-    }
-
-    /**
-     * 아이템 추가
-     */
-    fun addItem(addItem: List<DermatologyData>) {
-        itemList.addAll(addItem)
-        sortList(itemList)
-        notifyItemRangeChanged(0, itemList.size)
-    }
-
-    /**
-     * 거리가 가까운 순으로 리스트 정렬
-     */
-    private fun sortList(dataList: MutableList<DermatologyData>) {
-        val comparator = compareBy<DermatologyData> { it.dermatologyDist.toFloat() }
-        dataList.sortWith(comparator)
     }
 
     /**
