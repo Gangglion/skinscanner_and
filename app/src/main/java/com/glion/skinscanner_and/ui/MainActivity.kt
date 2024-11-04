@@ -7,7 +7,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.glion.skinscanner_and.BuildConfig
+import com.glion.skinscanner_and.AppVersion
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.common.DLog
@@ -157,9 +157,4 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
         }
     }
-
-    data class AppVersion(
-        val versionName: String = BuildConfig.VERSION_NAME,
-        val versionType: Int = 0
-    )
 }
