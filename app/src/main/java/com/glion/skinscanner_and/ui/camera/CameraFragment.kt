@@ -3,8 +3,6 @@ package com.glion.skinscanner_and.ui.camera
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.camera.core.CameraSelector
@@ -27,6 +25,8 @@ import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.admob.AdmobInterface
+import com.glion.skinscanner_and.util.admob.AdmobUtil
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +42,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
+    private var earnedReward: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -188,7 +189,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                     cancerQuantized.recognizeCancer(it)
                 }
             } else {
-                DLog.e("startAnalyze - 분석 실패", null)
+                DLog.e("startAnalyze - 분석 실패")
                 with(mParentActivity) {
                     showToast("분석에 실패했습니다.")
                     mLoadingDialog.dismiss()
@@ -198,27 +199,47 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
         }
     }
 
+    /**
+     * 모델 추론 왼료되면 광고 띄워줌
+     */
     override fun onResult(cancerType: CancerType?, percent: Int) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            if(cancerType != null) {
-                val resultCancer = when(cancerType) {
-                    CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                    CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                    CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+        val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
+            override fun adDismiss() {
+                if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                    processIsCancer(cancerType, percent)
                 }
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, resultCancer)
-                    putInt(Define.VALUE, percent)
-                }
-                mLoadingDialog.dismiss()
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
-            } else {
-                mLoadingDialog.dismiss()
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-                }
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
             }
-        },2000L)
+
+            override fun getReward(rewardType: String) {
+                earnedReward = rewardType
+            }
+        })
+        adMobUtil.showAd()
+    }
+
+    /**
+     * 광고 시청 이후, 암인지 이난지 결과를 보여주는 화면으로 이동
+     */
+    private fun processIsCancer(cancerType: CancerType?, percent: Int) {
+        if(cancerType != null) {
+            val resultCancer = when(cancerType) {
+                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
+                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
+                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+            }
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, resultCancer)
+                putInt(Define.VALUE, percent)
+            }
+            mLoadingDialog.dismiss()
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        } else {
+            mLoadingDialog.dismiss()
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
+            }
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        }
+
     }
 }

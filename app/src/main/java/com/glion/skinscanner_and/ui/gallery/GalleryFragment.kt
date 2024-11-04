@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +14,8 @@ import com.glion.skinscanner_and.databinding.FragmentGalleryBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.admob.AdmobInterface
+import com.glion.skinscanner_and.util.admob.AdmobUtil
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.layout.fragment_gallery), CancerQuantized.InferenceCallback {
+    private var earnedReward: String = ""
+
     private val galleryResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         when(result.resultCode) {
             Activity.RESULT_OK -> {
@@ -81,27 +83,46 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
         }
     }
 
+    /**
+     * 모델 추론이 끝나고 결과가 보여지기 전 광고 시청
+     */
     override fun onResult(cancerType: CancerType?, percent: Int) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            if(cancerType != null) {
-                val resultCancer = when(cancerType) {
-                    CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                    CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                    CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+        val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
+            override fun adDismiss() {
+                if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                    processIsCancer(cancerType, percent)
                 }
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, resultCancer)
-                    putInt(Define.VALUE, percent)
-                }
-                mLoadingDialog.dismiss()
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
-            } else {
-                mLoadingDialog.dismiss()
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-                }
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
             }
-        }, 2000L)
+
+            override fun getReward(rewardType: String) {
+                earnedReward = rewardType
+            }
+        })
+        adMobUtil.showAd()
+    }
+
+    /**
+     * 광고 시청 이후, 암인지 이난지 결과를 보여주는 화면으로 이동
+     */
+    private fun processIsCancer(cancerType: CancerType?, percent: Int) {
+        if(cancerType != null) {
+            val resultCancer = when(cancerType) {
+                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
+                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
+                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+            }
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, resultCancer)
+                putInt(Define.VALUE, percent)
+            }
+            mLoadingDialog.dismiss()
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        } else {
+            mLoadingDialog.dismiss()
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
+            }
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        }
     }
 }

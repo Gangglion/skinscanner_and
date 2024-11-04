@@ -21,7 +21,10 @@ object DLog {
         Log.w(TAG, msg)
     }
 
-    fun e(msg: String, error: Exception?) {
-        Log.e(TAG, msg, error)
+    fun e(msg: String, error: Exception? = null) {
+        if(error != null)
+            Log.e(TAG, msg, error)
+        else
+            Log.e(TAG, msg)
     }
 }

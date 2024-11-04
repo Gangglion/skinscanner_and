@@ -2,8 +2,6 @@ package com.glion.skinscanner_and.ui.gallery
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.View.OnClickListener
 import com.glion.skinscanner_and.R
@@ -13,6 +11,8 @@ import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.admob.AdmobInterface
+import com.glion.skinscanner_and.util.admob.AdmobUtil
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
 import com.glion.skinscanner_and.util.tflite.CancerType
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), CancerQuantized.InferenceCallback, OnClickListener {
-
+    private var earnedReward: String = ""
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(mBinding) {
@@ -49,27 +49,18 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
     }
 
     override fun onResult(cancerType: CancerType?, percent: Int) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            if(cancerType != null) {
-                val resultCancer = when(cancerType) {
-                    CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                    CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                    CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+        val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
+            override fun adDismiss() {
+                if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                    processIsCancer(cancerType, percent)
                 }
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, resultCancer)
-                    putInt(Define.VALUE, percent)
-                }
-                mLoadingDialog.dismiss()
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
-            } else {
-                mLoadingDialog.dismiss()
-                val bundle = Bundle().apply {
-                    putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-                }
-                mParentActivity.changeFragment(ScreenType.Result, bundle)
             }
-        },2000L)
+
+            override fun getReward(rewardType: String) {
+                earnedReward = rewardType
+            }
+        })
+        adMobUtil.showAd()
     }
 
 
@@ -81,6 +72,28 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                 startAnalyze(croppedImage)
                 mLoadingDialog.show()
             }
+        }
+    }
+
+    private fun processIsCancer(cancerType: CancerType?, percent: Int) {
+        if(cancerType != null) {
+            val resultCancer = when(cancerType) {
+                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
+                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
+                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
+            }
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, resultCancer)
+                putInt(Define.VALUE, percent)
+            }
+            mLoadingDialog.dismiss()
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
+        } else {
+            mLoadingDialog.dismiss()
+            val bundle = Bundle().apply {
+                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
+            }
+            mParentActivity.changeFragment(ScreenType.Result, bundle)
         }
     }
 }

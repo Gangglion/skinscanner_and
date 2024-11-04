@@ -30,6 +30,10 @@ android {
         buildConfigField("String", "KAKAO_MAP_KEY", properties.getProperty("KAKAO_MAP_KEY"))
         buildConfigField("String", "KAKAO_REST_KEY", properties.getProperty("KAKAO_REST_KEY"))
         buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
+        // 보상형 광고 App Id manifestPlaceholders 로 저장
+        manifestPlaceholders["AD_APP_ID"] = properties.getProperty("REWARD_AD_APP_ID") as String
+        // 보상형 광고 ID buldConfigField 에 저장
+        buildConfigField("String", "AD_ID", properties.getProperty("REWARD_AD_ID"))
     }
 
     buildTypes {
@@ -103,6 +107,8 @@ dependencies {
 
     // Google play service location
     implementation(libs.play.services.location)
+    // AdMob
+    implementation(libs.play.services.ads)
 
     // firebase bom
     implementation(platform(libs.firebase.bom))
