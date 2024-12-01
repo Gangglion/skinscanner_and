@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.base.BaseFragment
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType

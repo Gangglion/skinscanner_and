@@ -13,10 +13,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.base.BaseFragment
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentResultBinding
-import com.glion.skinscanner_and.extension.checkPermission
+import com.glion.skinscanner_and.util.extension.checkPermission
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType

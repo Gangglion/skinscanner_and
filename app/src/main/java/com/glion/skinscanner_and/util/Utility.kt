@@ -11,8 +11,6 @@ import android.util.DisplayMetrics
 import androidx.core.content.ContextCompat
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.common.DLog
-import com.glion.skinscanner_and.common.Define
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

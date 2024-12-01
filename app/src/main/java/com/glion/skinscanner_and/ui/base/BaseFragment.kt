@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.base
+package com.glion.skinscanner_and.ui.base
 
 import android.content.Context
 import android.os.Bundle

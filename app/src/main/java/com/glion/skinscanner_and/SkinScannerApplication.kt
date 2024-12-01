@@ -2,7 +2,7 @@ package com.glion.skinscanner_and
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.util.Define
 import com.google.android.gms.ads.MobileAds
 import com.kakao.vectormap.KakaoMapSdk
 

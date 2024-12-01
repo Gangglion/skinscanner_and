@@ -5,11 +5,12 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.MutableLiveData
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType

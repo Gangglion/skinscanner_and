@@ -11,8 +11,8 @@ import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.DialogCommonBinding
-import com.glion.skinscanner_and.extension.dialogResize
-import com.glion.skinscanner_and.extension.getWindowHeight
+import com.glion.skinscanner_and.util.extension.dialogResize
+import com.glion.skinscanner_and.util.extension.getWindowHeight
 
 /**
  * 공통 다이어로그 Class

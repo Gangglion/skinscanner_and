@@ -21,6 +21,8 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseFragment
 import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType

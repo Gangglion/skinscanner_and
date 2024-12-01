@@ -8,8 +8,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.base.BaseFragment
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentGalleryBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.enums.ScreenType

@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.extension
+package com.glion.skinscanner_and.util.extension
 
 import android.app.Dialog
 import android.graphics.Point

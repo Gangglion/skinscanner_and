@@ -12,6 +12,8 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.base.BaseActivity
 import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.ui.base.BaseActivity
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog

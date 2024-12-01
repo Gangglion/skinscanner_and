@@ -3,6 +3,7 @@ package com.glion.skinscanner_and.util.admob
 import android.app.Activity
 import com.glion.skinscanner_and.common.DLog
 import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.util.Define
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
