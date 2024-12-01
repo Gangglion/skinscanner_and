@@ -1,8 +1,7 @@
 package com.glion.skinscanner_and.util.admob
 
 import android.app.Activity
-import com.glion.skinscanner_and.common.DLog
-import com.glion.skinscanner_and.common.Define
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Define
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -20,30 +19,30 @@ class AdmobUtil(
     private val fullscreenCallback = object : FullScreenContentCallback() {
         override fun onAdClicked() {
             super.onAdClicked()
-            DLog.d("Ad was Clicked")
+            LogUtil.d("Ad was Clicked")
         }
 
         override fun onAdDismissedFullScreenContent() {
             super.onAdDismissedFullScreenContent()
-            DLog.d("Ad dismissed fullscreen content")
+            LogUtil.d("Ad dismissed fullscreen content")
             mRewardedAd = null
             listener.adDismiss()
         }
 
         override fun onAdFailedToShowFullScreenContent(adError: AdError) {
             super.onAdFailedToShowFullScreenContent(adError)
-            DLog.e("Ad failed to show fullscreen content")
+            LogUtil.e("Ad failed to show fullscreen content")
             mRewardedAd = null
         }
 
         override fun onAdImpression() {
             super.onAdImpression()
-            DLog.d("Ad recorded an impression")
+            LogUtil.d("Ad recorded an impression")
         }
 
         override fun onAdShowedFullScreenContent() {
             super.onAdShowedFullScreenContent()
-            DLog.d("Ad showed fullscreen content.")
+            LogUtil.d("Ad showed fullscreen content.")
         }
     }
 
@@ -54,7 +53,7 @@ class AdmobUtil(
         val adRequest = AdRequest.Builder().build()
         RewardedAd.load(activity, Define.AD_ID, adRequest, object : RewardedAdLoadCallback() {
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                DLog.e("onAdFailedToLoad ::\n $loadAdError")
+                LogUtil.e("onAdFailedToLoad ::\n $loadAdError")
                 mRewardedAd = null
                 // TODO : 광고를 보여줄 수 없다면 처리 필요
             }

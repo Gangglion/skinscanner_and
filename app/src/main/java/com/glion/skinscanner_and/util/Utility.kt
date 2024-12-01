@@ -26,7 +26,7 @@ object Utility{
                 try {
                     BitmapFactory.decodeFile(mContext.getString(R.string.cache_path) + "/$fileName")
                 } catch(e: Exception) {
-                    DLog.e("getImageByteArrayFromCache Has Error", e)
+                    LogUtil.e("getImageByteArrayFromCache Has Error", e)
                     null
                 }
             } else {
@@ -60,7 +60,7 @@ object Utility{
         try {
             return ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
         } catch(e: Exception) {
-            DLog.e("Convert Bitmap Fail", e)
+            LogUtil.e("Convert Bitmap Fail", e)
             return null
         }
     }
@@ -78,7 +78,7 @@ object Utility{
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
             fileOutputStream.close()
         } catch(e: Exception) {
-            DLog.e("File Saved Fail", e)
+            LogUtil.e("File Saved Fail", e)
         }
     }
 

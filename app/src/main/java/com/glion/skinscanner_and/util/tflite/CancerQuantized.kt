@@ -3,7 +3,7 @@ package com.glion.skinscanner_and.util.tflite
 import android.content.Context
 import android.graphics.Bitmap
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.util.LogUtil
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -56,7 +56,7 @@ class CancerQuantized(
     private fun analyzeResult(modelResult: FloatArray) {
         val resultToMutableList = modelResult.toMutableList()
         val sigmoidCancerResult = valueToSigmoid(modelResult[0])
-        DLog.i("결과값 : $sigmoidCancerResult")
+        LogUtil.d("결과값 : $sigmoidCancerResult")
         if(sigmoidCancerResult >= 0.5f) { // 암일 확률이 0.5이상일 경우
             resultToMutableList.removeAt(0)
             val maxValue = resultToMutableList.max()

@@ -6,10 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.base.BaseFragment
-import com.glion.skinscanner_and.common.DLog
-import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
@@ -62,7 +60,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         mLoadingDialog.show()
         ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, x, y, 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
             override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
-                DLog.d("Api Success")
+                LogUtil.d("Api Success")
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body != null) {
@@ -100,7 +98,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
             }
 
             override fun onFailure(call: Call<ResponseKeyword>, throwable: Throwable) {
-                DLog.e("Api fail", throwable as? Exception)
+                LogUtil.e("Api fail", throwable as? Exception)
                 mLoadingDialog.dismiss()
                 mParentActivity.showToast(mContext.getString(R.string.network_error))
             }

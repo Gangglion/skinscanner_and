@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.common.DLog
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.databinding.ItemDermotologyListBinding
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.kakao.vectormap.GestureType
@@ -84,18 +84,18 @@ class DermatologyListAdapter(
             object : MapLifeCycleCallback() {
                 override fun onMapDestroy() {
                     // 지도 API 가 정상적으로 종료될 떄 호출됨
-                    DLog.d("지도 API 가 정상적으로 종료됨")
+                    LogUtil.d("지도 API 가 정상적으로 종료됨")
                 }
 
                 override fun onMapError(e: Exception?) {
                     // 인증 실패 및 지도 사용 중 에러 발생 시 호출 됨
-                    DLog.e("인증 실패 및 지도 사용 중 에러 발생", e)
+                    LogUtil.e("인증 실패 및 지도 사용 중 에러 발생", e)
                 }
             },
             object : KakaoMapReadyCallback() {
                 override fun onMapReady(kakaoMap: KakaoMap) {
                     // 인증 API 가 정상적으로 실행될 때 호출됨
-                    DLog.d("인증 API 정상적으로 실행 됨")
+                    LogUtil.d("인증 API 정상적으로 실행 됨")
                     kakaoMap.apply{
                         setGestureEnable(GestureType.Zoom, false)
                         setGestureEnable(GestureType.Pan, false)

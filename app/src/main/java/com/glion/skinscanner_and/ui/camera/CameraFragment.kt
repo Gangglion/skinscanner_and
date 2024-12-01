@@ -18,10 +18,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.base.BaseFragment
-import com.glion.skinscanner_and.common.DLog
-import com.glion.skinscanner_and.common.Define
 import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
@@ -90,7 +88,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, mImageCapture) // CameraProvider 에 ImageCapture 정보 넘긴다.
             } catch(e: Exception) {
-                DLog.e("User Case Binding Failed", e)
+                LogUtil.e("User Case Binding Failed", e)
             }
         }, ContextCompat.getMainExecutor(mContext))
         mBinding.clCamera.visibility = View.VISIBLE
@@ -191,7 +189,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                     cancerQuantized.recognizeCancer(it)
                 }
             } else {
-                DLog.e("startAnalyze - 분석 실패")
+                LogUtil.e("startAnalyze - 분석 실패")
                 with(mParentActivity) {
                     showToast("분석에 실패했습니다.")
                     mLoadingDialog.dismiss()
