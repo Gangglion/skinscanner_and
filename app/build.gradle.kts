@@ -8,6 +8,9 @@ plugins {
     id("com.google.gms.google-services")
     // firebase crashlytics
     id("com.google.firebase.crashlytics")
+    // hilt
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 val properties = Properties().apply {
@@ -118,6 +121,14 @@ dependencies {
     implementation(libs.firebase.analytics)
     // firebase realtime database
     implementation(libs.firebase.database)
+
+    // android fragment navigation
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

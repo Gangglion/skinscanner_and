@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.glion.skinscanner_and.util.Define
 import com.google.android.gms.ads.MobileAds
 import com.kakao.vectormap.KakaoMapSdk
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class SkinScannerApplication: Application() {
 
     override fun onCreate() {

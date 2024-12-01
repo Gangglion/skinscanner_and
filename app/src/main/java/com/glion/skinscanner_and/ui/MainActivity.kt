@@ -25,7 +25,9 @@ import com.glion.skinscanner_and.ui.result.ResultFragment
 import com.glion.skinscanner_and.util.Utility
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private var mCurrentScreen = ScreenType.Home
 

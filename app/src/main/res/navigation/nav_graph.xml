@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.glion.skinscanner_and.ui.home.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_galleryFragment2"
+            app:destination="@id/galleryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.glion.skinscanner_and.ui.camera.CameraFragment"
+        android:label="CameraFragment" >
+        <action
+            android:id="@+id/action_cameraFragment_to_resultFragment"
+            app:destination="@id/resultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resultFragment"
+        android:name="com.glion.skinscanner_and.ui.result.ResultFragment"
+        android:label="ResultFragment" >
+        <argument
+            android:name="result"
+            app:argType="string" />
+        <argument
+            android:name="value"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_resultFragment_to_findDermatologyFragment"
+            app:destination="@id/findDermatologyFragment" />
+        <action
+            android:id="@+id/action_resultFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/galleryFragment"
+        android:name="com.glion.skinscanner_and.ui.gallery.GalleryFragment"
+        android:label="GalleryFragment" >
+        <action
+            android:id="@+id/action_galleryFragment_to_resizeFragment"
+            app:destination="@id/resizeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resizeFragment"
+        android:name="com.glion.skinscanner_and.ui.gallery.ResizeFragment"
+        android:label="ResizeFragment" >
+        <action
+            android:id="@+id/action_resizeFragment_to_resultFragment"
+            app:destination="@id/resultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/findDermatologyFragment"
+        android:name="com.glion.skinscanner_and.ui.find_dermatology.FindDermatologyFragment"
+        android:label="FindDermatologyFragment" >
+        <action
+            android:id="@+id/action_findDermatologyFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+</navigation>
