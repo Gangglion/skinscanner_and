@@ -60,6 +60,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
                 checkPermissionCamera()
             }
 
+            // TODO : 권한 허용 수정 필요
             mBinding.llOpenGallery.id -> {
                 when (Build.VERSION.SDK_INT) {
                     Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {

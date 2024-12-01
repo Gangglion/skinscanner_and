@@ -42,15 +42,19 @@ class DermatologyListAdapter(
                 tvItemTitle.text = item.dermatologyTitle
                 tvItemAddr.text = item.dermatologyAddr
                 tvItemDist.text = mContext.getString(R.string.format_dist).format(item.dermatologyDist.toFloat() / 1000)
-                tvItemNumber.text = item.dermatologyNumber
+                tvItemNumber.apply {
+                    text = item.dermatologyNumber
+                    setOnClickListener {
+                        clickPhone(text.toString())
+                    }
+                }
                 tvItemUrl.text = item.dermatologyUrl
                 setMap(mvItem, item)
             }
         }
 
-        private fun clickPhone() {
-            val phone = binding.tvItemNumber.text.toString()
-            val intentDial = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+        private fun clickPhone(number: String) {
+            val intentDial = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$number"))
             mContext.startActivity(intentDial)
         }
 
