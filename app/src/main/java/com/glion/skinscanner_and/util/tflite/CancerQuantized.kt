@@ -10,6 +10,8 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.exp
@@ -24,6 +26,7 @@ class CancerQuantized(
 
     /**
      * (1, 260, 260, 3) uInt8
+     * 1장 이미지 가로 260 세로 260 3채널(RGB) uInt8 형식으로 변환
      */
     fun processImage(bitmap: Bitmap) : TensorImage {
         val imageProcessor = ImageProcessor.Builder().add(ResizeOp(260, 260, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR)).build()
@@ -32,11 +35,77 @@ class CancerQuantized(
         return imageProcessor.process(tensorImage)
     }
 
-    fun recognizeCancer(tensorImage: TensorImage) {
-        val input = tensorImage
+    /**
+     * (1, 260, 260, 3) uInt8
+     * 1장 이미지 가로 260 세로 260 3채널(RGB) uInt8 형식으로 변환
+     */
+    fun processImageFromChatgpt(bitmap: Bitmap) : ByteBuffer {
+        val targetHeight = 260
+        val targetWidth = 260
+        val targetChannel = 3
+
+        // resize the bitmap to 260x260
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+
+        // Create a ByteBuffer with the required capacity
+        val byteBuffer = ByteBuffer.allocateDirect(targetHeight * targetWidth * targetChannel)
+        byteBuffer.order(ByteOrder.nativeOrder())
+
+        // Fill the ByteBuffer with image data
+        val intValues = IntArray(targetHeight * targetWidth)
+        resizedBitmap.getPixels(intValues, 0, targetWidth, 0, 0, targetWidth, targetHeight)
+
+        for(pixel in intValues) {
+            // Extract RGB channels from the pixel and add them to the ByteBuffer
+            byteBuffer.put(((pixel shr 16) and 0xFF).toByte()) // Red Channel
+            byteBuffer.put(((pixel shr 8) and 0xFF).toByte()) // Green Channel
+            byteBuffer.put((pixel and 0xFF).toByte()) // Blue Channel
+        }
+
+        return byteBuffer
+    }
+
+//    fun processImageUseOpenCV(bitmap: Bitmap): ByteBuffer {
+//        // Target dimensions
+//        val targetHeight = 260
+//        val targetWidth = 260
+//        val targetChannels = 3
+//
+//        // Convert Bitmap to OpenCV Mat
+//        val mat = Mat()
+//        Utils.bitmapToMat(bitmap, mat)
+//
+//        // Resize the image to 260x260
+//        val resizedMat = Mat()
+//        Imgproc.resize(mat, resizedMat, Size(targetWidth.toDouble(), targetHeight.toDouble()))
+//
+//        // Ensure the Mat is in RGB format
+//        val rgbMat = Mat()
+//        Imgproc.cvtColor(resizedMat, rgbMat, Imgproc.COLOR_RGBA2RGB)
+//
+//        // Create a ByteBuffer for TensorFlow Lite input
+//        val byteBuffer = ByteBuffer.allocateDirect(targetHeight * targetWidth * targetChannels)
+//        byteBuffer.order(ByteOrder.nativeOrder())
+//
+//        // Convert Mat pixel data to ByteBuffer
+//        val data = ByteArray(targetHeight * targetWidth * targetChannels)
+//        rgbMat.get(0, 0, data) // Extract pixel data into a byte array
+//        byteBuffer.put(data)
+//
+//        return byteBuffer
+//    }
+
+    fun recognizeCancer(processedImage: TensorImage) {
         val output = arrayOf(FloatArray(4)) // 모델의 결과는 무조건 array 형태로 나온다. 반환되는 값이 1개라면 array내에 0번째 인덱스에만 값이 들어가있는 형태
         val tfliteModel = getModelInterpreter() // 모델 로드
-        tfliteModel.run(input.buffer, output)
+        tfliteModel.run(processedImage.buffer, output)
+        analyzeResult(output[0])
+    }
+
+    fun recognizeCancer(processedImage: ByteBuffer) {
+        val output = arrayOf(FloatArray(4)) // 모델의 결과는 무조건 array 형태로 나온다. 반환되는 값이 1개라면 array내에 0번째 인덱스에만 값이 들어가있는 형태
+        val tfliteModel = getModelInterpreter() // 모델 로드
+        tfliteModel.run(processedImage, output)
         analyzeResult(output[0])
     }
 

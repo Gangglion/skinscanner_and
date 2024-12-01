@@ -37,6 +37,8 @@ android {
         manifestPlaceholders["AD_APP_ID"] = properties.getProperty("REWARD_AD_APP_ID") as String
         // 보상형 광고 ID buldConfigField 에 저장
         buildConfigField("String", "AD_ID", properties.getProperty("REWARD_AD_ID"))
+        // 테스트 데이터셋 URL 저장
+        buildConfigField("String", "DATA_SET_URL", properties.getProperty("DATA_SET_URL"))
     }
 
     buildTypes {
