@@ -142,7 +142,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)
-                mParentActivity.showToast(mContext.getString(R.string.fail_capture))
+                showToast(mContext.getString(R.string.fail_capture))
                 mLoadingDialog.dismiss()
                 mBinding.clCamera.visibility = View.VISIBLE
                 mBinding.clPreview.visibility = View.GONE

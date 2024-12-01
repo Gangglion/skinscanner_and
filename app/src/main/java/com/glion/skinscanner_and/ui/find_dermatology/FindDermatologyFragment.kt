@@ -90,19 +90,19 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
                     } else {
                         // note : Api response body 가 null 일때의 처리
                         mLoadingDialog.dismiss()
-                        mParentActivity.showToast(mContext.getString(R.string.network_error))
+                        showToast(mContext.getString(R.string.network_error))
                     }
                 } else {
                     // note : response 가 successful 이 아닐 경우 처리
                     mLoadingDialog.dismiss()
-                    mParentActivity.showToast(mContext.getString(R.string.network_error))
+                    showToast(mContext.getString(R.string.network_error))
                 }
             }
 
             override fun onFailure(call: Call<ResponseKeyword>, throwable: Throwable) {
                 LogUtil.e("Api fail", throwable as? Exception)
                 mLoadingDialog.dismiss()
-                mParentActivity.showToast(mContext.getString(R.string.network_error))
+                showToast(mContext.getString(R.string.network_error))
             }
         })
     }

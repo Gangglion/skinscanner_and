@@ -19,6 +19,8 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
     protected lateinit var mParentActivity: A
     protected lateinit var mContext: Context
 
+    private var mToast: Toast? = null
+
     lateinit var mLoadingDialog: LoadingDialog
 
     override fun onAttach(context: Context) {
@@ -43,7 +45,9 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
     }
 
     fun showToast(msg: String) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show()
+        mToast?.cancel()
+        mToast = Toast.makeText(mContext, msg, Toast.LENGTH_SHORT)
+        mToast?.show()
     }
 
     fun showDialog(

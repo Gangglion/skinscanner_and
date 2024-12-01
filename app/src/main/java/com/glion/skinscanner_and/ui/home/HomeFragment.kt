@@ -120,7 +120,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             listener = object : CommonDialog.DialogButtonClick {
                 override fun leftBtnClick() {
                     super.leftBtnClick()
-                    mParentActivity.showToast(mContext.getString(R.string.denied_permission_camera))
+                    showToast(mContext.getString(R.string.denied_permission_camera))
                 }
 
                 override fun rightBtnClick() {
@@ -142,7 +142,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             listener = object : CommonDialog.DialogButtonClick {
                 override fun leftBtnClick() {
                     super.leftBtnClick()
-                    mParentActivity.showToast(mContext.getString(R.string.denied_permission_gallery))
+                    showToast(mContext.getString(R.string.denied_permission_gallery))
                 }
 
                 override fun rightBtnClick() {

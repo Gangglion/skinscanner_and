@@ -24,10 +24,6 @@ abstract class BaseActivity<T: ViewDataBinding>(private val layoutResId: Int) : 
         mLoadingDialog = LoadingDialog(mContext)
     }
 
-    fun showToast(msg: String) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show()
-    }
-
     fun showDialog(
         dialogType: CommonDialogType,
         title: String = "",
