@@ -99,6 +99,10 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
             override fun getReward(rewardType: String) {
                 earnedReward = rewardType
             }
+
+            override fun adError() {
+                processIsCancer(cancerType, percent)
+            }
         })
         adMobUtil.showAd()
     }

@@ -215,6 +215,10 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             override fun getReward(rewardType: String) {
                 earnedReward = rewardType
             }
+
+            override fun adError() {
+                processIsCancer(cancerType, percent)
+            }
         })
         adMobUtil.showAd()
     }

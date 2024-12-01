@@ -55,7 +55,7 @@ class AdmobUtil(
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                 LogUtil.e("onAdFailedToLoad ::\n $loadAdError")
                 mRewardedAd = null
-                // TODO : 광고를 보여줄 수 없다면 처리 필요
+                listener.adError()
             }
 
             override fun onAdLoaded(ad: RewardedAd) {
