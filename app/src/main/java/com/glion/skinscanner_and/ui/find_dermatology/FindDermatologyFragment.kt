@@ -6,14 +6,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.util.LogUtil
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
+import com.glion.skinscanner_and.util.Define
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.network.ApiClient
 import com.glion.skinscanner_and.util.response.ResponseKeyword
 import com.google.android.gms.location.CurrentLocationRequest

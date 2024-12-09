@@ -9,10 +9,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.glion.skinscanner_and.AppVersion
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.ui.base.BaseActivity
-import com.glion.skinscanner_and.util.LogUtil
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
+import com.glion.skinscanner_and.ui.base.BaseActivity
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
@@ -22,6 +20,8 @@ import com.glion.skinscanner_and.ui.gallery.GalleryFragment
 import com.glion.skinscanner_and.ui.gallery.ResizeFragment
 import com.glion.skinscanner_and.ui.home.HomeFragment
 import com.glion.skinscanner_and.ui.result.ResultFragment
+import com.glion.skinscanner_and.util.Define
+import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Utility
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
