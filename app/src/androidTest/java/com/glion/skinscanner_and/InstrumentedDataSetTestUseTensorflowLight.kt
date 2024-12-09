@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class InstrumentedDataSetTest : CancerQuantized.InferenceCallback {
+class InstrumentedDataSetTestUseTensorflowLight : CancerQuantized.InferenceCallback {
     private val latch = CountDownLatch(10014)
     private var imageName = ""
     
