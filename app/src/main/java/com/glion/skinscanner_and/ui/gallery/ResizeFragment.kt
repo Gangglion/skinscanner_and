@@ -4,12 +4,13 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.enums.ScreenType
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.admob.AdmobInterface
 import com.glion.skinscanner_and.util.admob.AdmobUtil
@@ -53,8 +54,14 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
     override fun onResult(cancerType: CancerType?, percent: Int) {
         val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
             override fun adDismiss() {
-                if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
-                    processIsCancer(cancerType, percent)
+                if(BuildConfig.DEBUG) {
+                    if(earnedReward == "coins") {
+                        processIsCancer(cancerType, percent)
+                    }
+                } else {
+                    if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                        processIsCancer(cancerType, percent)
+                    }
                 }
             }
 
