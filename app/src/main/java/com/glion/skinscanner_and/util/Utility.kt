@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.provider.Settings
-import android.util.DisplayMetrics
 import androidx.core.content.ContextCompat
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
@@ -43,14 +42,6 @@ object Utility{
         } else {
             null
         }
-    }
-
-    /**
-     * PxToDp
-     */
-    fun pxToDp(px: Float, context: Context) : Int {
-        val metrics = context.resources.displayMetrics
-        return (px / (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT.toFloat())).toInt()
     }
 
     /**
