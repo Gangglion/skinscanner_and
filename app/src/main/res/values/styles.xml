@@ -10,4 +10,14 @@
         <item name="android:textSize">@dimen/_16dp</item>
         <item name="android:textAlignment">center</item>
     </style>
+    <!-- Full Screen Dialog -->
+    <style name="FullWindowDialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:background">@color/transparent</item>
+    </style>
 </resources>

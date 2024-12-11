@@ -11,6 +11,7 @@ import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
+import com.glion.skinscanner_and.ui.dialog.ExplainMapDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
@@ -63,6 +64,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext as Activity)
+        ExplainMapDialog(mContext).show()
         mFusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if(location != null) {
                 getDermatologyData(location.longitude.toString(), location.latitude.toString())
@@ -88,7 +90,6 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
      * 피부과 데이터 가져오기 API 호출 함수s
      */
     private fun getDermatologyData(x: String, y: String) {
-        mLoadingDialog.show()
         ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, x, y, 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
             override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
                 LogUtil.d("Api Success")
@@ -112,25 +113,21 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
                             mSearchPage++
                             getDermatologyData(x, y)
                         } else {
-                            mLoadingDialog.dismiss()
                             sortList()
                             setAdapter()
                         }
                     } else {
                         // note : Api response body 가 null 일때의 처리
-                        mLoadingDialog.dismiss()
                         showToast(mContext.getString(R.string.network_error))
                     }
                 } else {
                     // note : response 가 successful 이 아닐 경우 처리
-                    mLoadingDialog.dismiss()
                     showToast(mContext.getString(R.string.network_error))
                 }
             }
 
             override fun onFailure(call: Call<ResponseKeyword>, throwable: Throwable) {
                 LogUtil.e("Api fail", throwable as? Exception)
-                mLoadingDialog.dismiss()
                 showToast(mContext.getString(R.string.network_error))
             }
         })
