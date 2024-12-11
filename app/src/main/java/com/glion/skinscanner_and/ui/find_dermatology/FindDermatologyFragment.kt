@@ -9,11 +9,15 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
+import com.glion.skinscanner_and.ui.dialog.CommonDialog
+import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.LogUtil
+import com.glion.skinscanner_and.util.NetworkConnectionCheck
+import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.network.ApiClient
 import com.glion.skinscanner_and.util.response.ResponseKeyword
 import com.google.android.gms.location.CurrentLocationRequest
@@ -34,10 +38,27 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     private val mDataList: MutableList<DermatologyData> = mutableListOf()
     private var mSearchPage = 1
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    // TODO
-    //  2. url 클릭 시 카카오맵 열리는 로직 불안함. 수정 필요
-    //  3. 화면 상단 위치 갱신하는 코드 추가
-    //  4. 네트워크 감지 리시버 추가
+
+    private var networkConnectionCheck: NetworkConnectionCheck? = null
+    private var mNetworkWarnDialog: CommonDialog? = null
+    private var networkStateCallback: NetworkConnectionCheck.NetworkStateCallback = object : NetworkConnectionCheck.NetworkStateCallback {
+        override fun connect() {
+            mParentActivity.runOnUiThread {
+                if(mNetworkWarnDialog?.isShowing == true) {
+                    mNetworkWarnDialog?.dismiss()
+                }
+            }
+        }
+
+        override fun disConnect() {
+            mParentActivity.runOnUiThread {
+                if(mNetworkWarnDialog?.isShowing == false) {
+                    mNetworkWarnDialog?.show()
+                }
+            }
+        }
+    }
+
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,6 +74,14 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         mBinding.btnTemp.setOnClickListener {
             mParentActivity.changeFragment(ScreenType.Home)
         }
+
+        initNetworkCheck()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        networkConnectionCheck?.unregister()
+        networkConnectionCheck = null
     }
 
     /**
@@ -152,6 +181,32 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
 
         override fun isCancellationRequested(): Boolean {
             return false
+        }
+    }
+
+    /**
+     * 네트워크 연결상태 감지 초기화
+     */
+    private fun initNetworkCheck() {
+        if(networkConnectionCheck == null) {
+            networkConnectionCheck = NetworkConnectionCheck(mContext, networkStateCallback)
+            networkConnectionCheck!!.register()
+        }
+        if(mNetworkWarnDialog == null) {
+            mNetworkWarnDialog = CommonDialog(
+                mContext = mContext,
+                dialogType = CommonDialogType.OneButton,
+                isDismiss = false,
+                title = mContext.getString(R.string.notice),
+                contents = mContext.getString(R.string.check_network_status),
+                listener = object : CommonDialog.DialogButtonClick {
+                    override fun singleBtnClick() {
+                        if(Utility.checkNetworkStatus(mContext)) {
+                            mNetworkWarnDialog?.dismiss()
+                        }
+                    }
+                }
+            )
         }
     }
 }

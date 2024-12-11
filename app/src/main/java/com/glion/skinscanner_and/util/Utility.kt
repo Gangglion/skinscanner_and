@@ -5,6 +5,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.content.ContextCompat
@@ -118,5 +121,20 @@ object Utility{
         intent.addCategory(Intent.CATEGORY_DEFAULT)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         ContextCompat.startActivity(context, intent, null)
+    }
+
+    /**
+     * 인터넷 연결상태 체크
+     */
+    fun checkNetworkStatus(context: Context) : Boolean{
+        val connectivityManager: ConnectivityManager = context.getSystemService(ConnectivityManager::class.java)
+        val network: Network = connectivityManager.activeNetwork ?: return false
+        val actNetwork: NetworkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return when{
+            actNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            else -> false
+        }
     }
 }

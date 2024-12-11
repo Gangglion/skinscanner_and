@@ -18,6 +18,7 @@ import com.glion.skinscanner_and.util.extension.getWindowHeight
  * 공통 다이어로그 Class
  * @property [mContext] Context 객체
  * @property [dialogType] 다이어로그 타입 - OneButton / TwoButton
+ * @property [isDismiss] 버튼을 눌렀을때 다이어로그 dismiss 여부 - 기본값 true
  * @property [title] 다이어로그 title
  * @property [contents] 다이어로그 contents
  * @property [isCancelable] 외부클릭으로 팝업 닫히는지 여부
@@ -29,6 +30,7 @@ import com.glion.skinscanner_and.util.extension.getWindowHeight
 class CommonDialog(
     private val mContext: Context,
     private val dialogType: CommonDialogType = CommonDialogType.OneButton,
+    private val isDismiss: Boolean = true,
     private val title: String = "",
     private val contents: String = "",
     private val isCancelable: Boolean = false,
@@ -80,14 +82,16 @@ class CommonDialog(
                         text = leftBtnStr ?: mContext.getString(R.string.cancel)
                         setOnClickListener {
                             listener.leftBtnClick()
-                            dismiss()
+                            if(isDismiss)
+                                dismiss()
                         }
                     }
                     btnRight.apply {
                         text = rightBtnStr ?: mContext.getString(R.string.confirm)
                         setOnClickListener {
                             listener.rightBtnClick()
-                            dismiss()
+                            if(isDismiss)
+                                dismiss()
                         }
                     }
                 }
@@ -98,7 +102,8 @@ class CommonDialog(
                         text = singleBtnStr ?: mContext.getString(R.string.confirm)
                         setOnClickListener {
                             listener.singleBtnClick()
-                            dismiss()
+                            if(isDismiss)
+                                dismiss()
                         }
                     }
                 }

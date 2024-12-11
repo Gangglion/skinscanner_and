@@ -155,7 +155,24 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(locationSettingRequest)
         task.addOnSuccessListener {
             mParentActivity.runOnUiThread {
-                mParentActivity.changeFragment(ScreenType.Find)
+                if(Utility.checkNetworkStatus(mContext)) { // note : 인터넷에 연결되어있을 경우 이동
+                    mParentActivity.changeFragment(ScreenType.Find)
+                } else {
+                    showDialog(
+                        dialogType = CommonDialogType.TwoButton,
+                        title = mContext.getString(R.string.notice),
+                        contents = mContext.getString(R.string.need_network_connect),
+                        leftBtnStr = mContext.getString(R.string.go_home),
+                        rightBtnStr = mContext.getString(R.string.close),
+                        listener = object : CommonDialog.DialogButtonClick {
+                            override fun leftBtnClick() {
+                                super.leftBtnClick()
+                                Utility.deleteImage(mContext)
+                                mParentActivity.changeFragment(ScreenType.Home)
+                            }
+                        }
+                    )
+                }
             }
         }
         task.addOnFailureListener {

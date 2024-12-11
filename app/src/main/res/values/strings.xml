@@ -39,6 +39,12 @@
     <string name="update_later">나중에</string>
     <string name="update_now">업데이트</string>
 
+    <string name="notice">알림</string>
+    <string name="need_network_connect">주변 피부과 찾기 기능은 인터넷에 연결되어있어야 합니다.\n연결 상태를 확인해주세요</string>
+    <string name="go_home">홈으로 이동</string>
+    <string name="close">닫기</string>
+    <string name="check_network_status">인터넷 연결상태를 확인해주세요</string>
+
     <!-- Permission -->
     <string name="denied_permission_camera">카메라 권한을 허용하셔야 앱을 이용하실 수 있습니다.</string>
     <string name="permission_dialog_contents_camera">권한을 허용하셔야 \"내 피부사진 촬영하기\"\n기능을 이용하실 수 있습니다.\n\n확인을 누르면 설정으로 이동합니다.\n카메라 권한을 허용해 주세요</string>

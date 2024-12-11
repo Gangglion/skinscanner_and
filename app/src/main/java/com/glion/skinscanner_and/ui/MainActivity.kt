@@ -70,8 +70,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
         onBackPressedDispatcher.addCallback(backPressed)
 
-        // note : 앱 버전 체크
-        checkVersion()
+        // note : 인터넷이 연결되어있을때만 앱 버전 체크
+        if(Utility.checkNetworkStatus(mContext))
+            checkVersion()
     }
 
     fun changeFragment(type: ScreenType, bundle: Bundle? = null) {
