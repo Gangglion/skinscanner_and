@@ -7,30 +7,32 @@
 
     </data>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefreshlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.find_dermatology.FindDermatologyFragment"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rc_list"
+        tools:context=".ui.find_dermatology.FindDermatologyFragment">
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rc_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/DefaultButtonStyle"
-            android:text="@string/go_main"
-            android:layout_marginVertical="@dimen/_16dp"/>
-
-
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/DefaultButtonStyle"
+                android:text="@string/go_main"
+                android:layout_marginVertical="@dimen/_16dp"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.util.LogUtil
@@ -29,7 +30,7 @@ import com.kakao.vectormap.mapwidget.component.Orientation
 
 class DermatologyListAdapter(
     private val mContext: Context,
-    private val itemList: List<DermatologyData>
+    private val itemList: MutableList<DermatologyData>
 ) : RecyclerView.Adapter<DermatologyListAdapter.ViewHolder>() {
     companion object {
         const val LABEL_ID = "iconLabel"
@@ -48,7 +49,13 @@ class DermatologyListAdapter(
                         clickPhone(text.toString())
                     }
                 }
-                tvItemUrl.text = item.dermatologyUrl
+                tvItemUrl
+                tvItemUrl.apply {
+                    text = item.dermatologyUrl
+                    setOnClickListener {
+                        clickWeb(text.toString())
+                    }
+                }
                 setMap(mvItem, item)
             }
         }
@@ -58,8 +65,11 @@ class DermatologyListAdapter(
             mContext.startActivity(intentDial)
         }
 
-        private fun clickWeb() {
-            // TODO : 열리긴 열리는데, 아주 불안함. 다른 방법 찾아야 할듯
+        private fun clickWeb(url: String) {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(url)
+            }
+            mContext.startActivity(intent)
         }
     }
 
@@ -78,6 +88,31 @@ class DermatologyListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(itemList[position])
+    }
+
+    /**
+     * 주변 피부과 데이터 업데이트
+     * @param [newItemList] 추가되는 아이템 리스트
+     */
+    fun updateData(newItemList: List<DermatologyData>) {
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int = itemList.size
+
+            override fun getNewListSize(): Int = newItemList.size
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return (itemList[oldItemPosition].dermatologyLat == newItemList[newItemPosition].dermatologyLat) &&
+                        (itemList[oldItemPosition].dermatologyLng == newItemList[newItemPosition].dermatologyLng)
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return itemList[oldItemPosition] == newItemList[newItemPosition]
+            }
+        }
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        itemList.clear()
+        itemList.addAll(newItemList)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     /**

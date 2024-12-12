@@ -34,6 +34,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @AndroidEntryPoint
+@SuppressLint("MissingPermission")
 class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, MainActivity>(R.layout.fragment_find_dermatology) {
     private lateinit var mListAdapter: DermatologyListAdapter
     private val mDataList: MutableList<DermatologyData> = mutableListOf()
@@ -60,24 +61,38 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         }
     }
 
-    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext as Activity)
         FullScreenDialog(R.drawable.ic_near_dermatology).show(mParentActivity.supportFragmentManager, "ExampleFindDermatologyDialog")
+
+        with(mBinding) {
+            btnTemp.setOnClickListener {
+                mParentActivity.changeFragment(ScreenType.Home)
+            }
+            swiperefreshlayout.setOnRefreshListener {
+                mDataList.clear()
+                mSearchPage = 1
+                getCurrentLocation()
+            }
+            mListAdapter = DermatologyListAdapter(mContext, mutableListOf())
+            rcList.adapter = mListAdapter
+        }
+
+        initNetworkCheck()
+    }
+
+    override fun onResume() {
+        super.onResume()
         mFusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if(location != null) {
+                mDataList.clear()
+                mSearchPage = 1
                 getDermatologyData(location.longitude.toString(), location.latitude.toString())
             } else { // 재부팅으로 인해 캐시에 저장된 위치가 없을 경우, 새로 위치 갱신 후 카카오맵 세팅
                 getCurrentLocation()
             }
         }
-
-        mBinding.btnTemp.setOnClickListener {
-            mParentActivity.changeFragment(ScreenType.Home)
-        }
-
-        initNetworkCheck()
     }
 
     override fun onDestroy() {
@@ -87,48 +102,58 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     }
 
     /**
-     * 피부과 데이터 가져오기 API 호출 함수s
+     * 피부과 데이터 가져오기 API 호출 함수
      */
     private fun getDermatologyData(x: String, y: String) {
+        callSearchKeyword(x, y) { isEnd ->
+            if(isEnd) {
+                sortList()
+                mListAdapter.updateData(mDataList)
+                mBinding.swiperefreshlayout.isRefreshing = false
+            } else {
+                // note : 실패한 경우
+                showToast(mContext.getString(R.string.network_error))
+            }
+        }
+    }
+
+    private fun callSearchKeyword(x: String, y: String, callback: (Boolean) -> Unit) {
         ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, x, y, 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
             override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
-                LogUtil.d("Api Success")
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body != null) {
-                        for(item in body.documents) {
-                            mDataList.add(
-                                DermatologyData(
-                                    dermatologyTitle = item.placeName,
-                                    dermatologyUrl = item.placeUrl,
-                                    dermatologyNumber = item.phone,
-                                    dermatologyAddr = item.addressName,
-                                    dermatologyDist = item.distance,
-                                    dermatologyLat = item.y.toDouble(),
-                                    dermatologyLng = item.x.toDouble()
-                                )
+                        val getItems = body.documents.map { item ->
+                            DermatologyData(
+                                dermatologyTitle = item.placeName,
+                                dermatologyUrl = item.placeUrl,
+                                dermatologyNumber = item.phone,
+                                dermatologyAddr = item.addressName,
+                                dermatologyDist = item.distance,
+                                dermatologyLat = item.y.toDouble(),
+                                dermatologyLng = item.x.toDouble()
                             )
                         }
+
+                        mDataList.addAll(getItems)
+
                         if(!body.meta.is_end) {
                             mSearchPage++
-                            getDermatologyData(x, y)
+                            callSearchKeyword(x, y, callback)
                         } else {
-                            sortList()
-                            setAdapter()
+                            callback(true)
                         }
                     } else {
-                        // note : Api response body 가 null 일때의 처리
-                        showToast(mContext.getString(R.string.network_error))
+                        callback(false)
                     }
                 } else {
-                    // note : response 가 successful 이 아닐 경우 처리
-                    showToast(mContext.getString(R.string.network_error))
+                    callback(false)
                 }
             }
 
             override fun onFailure(call: Call<ResponseKeyword>, throwable: Throwable) {
                 LogUtil.e("Api fail", throwable as? Exception)
-                showToast(mContext.getString(R.string.network_error))
+                callback(false)
             }
         })
     }
@@ -139,11 +164,6 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     private fun sortList() {
         val comparator = compareBy<DermatologyData> { it.dermatologyDist.toFloat() }
         mDataList.sortWith(comparator)
-    }
-
-    private fun setAdapter() {
-        mListAdapter = DermatologyListAdapter(mContext, mDataList)
-        mBinding.rcList.adapter = mListAdapter
     }
 
     @SuppressLint("MissingPermission")
