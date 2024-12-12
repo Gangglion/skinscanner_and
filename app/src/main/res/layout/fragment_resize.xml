@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/_24dp"
-            android:textSize="@dimen/_16sp"
+            style="@style/MediumText"
             android:textAlignment="center"
             android:text="@string/drag_area"/>
         <com.canhub.cropper.CropImageView

@@ -34,7 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/btn_close"
-                android:textSize="@dimen/_16sp"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:text="@string/fix_area"/>

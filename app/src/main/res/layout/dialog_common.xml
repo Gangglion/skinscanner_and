@@ -26,8 +26,8 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:paddingVertical="@dimen/_8dp"
+                style="@style/MediumText"
                 android:textStyle="bold"
-                android:textColor="@color/black"
                 android:text="@string/default_dialog_title"/>
 
             <androidx.appcompat.widget.AppCompatTextView

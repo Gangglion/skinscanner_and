@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="DefaultButtonStyle">
-        <item name="android:textStyle">bold</item>
+    <style name="DefaultButtonStyle" parent="DefaultFont">
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/ic_background_radius_8</item>
         <item name="android:backgroundTint">@android:color/holo_blue_light</item>
@@ -11,22 +10,27 @@
         <item name="android:textAlignment">center</item>
     </style>
 
-    <style name="ExtraLargeText">
+    <style name="DefaultFont" parent="android:Widget.TextView">
+        <item name="fontFamily">@font/regular</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="ExtraLargeText" parent="DefaultFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/_24sp</item>
     </style>
 
-    <style name="LargeText">
+    <style name="LargeText" parent="DefaultFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/_20sp</item>
     </style>
 
-    <style name="MediumText">
+    <style name="MediumText" parent="DefaultFont">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/_18sp</item>
     </style>
 
-    <style name="DefaultText">
+    <style name="DefaultText" parent="DefaultFont">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/_16sp</item>
     </style>
