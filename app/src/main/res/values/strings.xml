@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SkinScanner</string>
+    <string name="app_name">AI 피부암 검사</string>
 
     <string name="saved_file_name">InputFile</string>
     <string name="cache_path">data/data/com.glion.skinscanner_and</string>
