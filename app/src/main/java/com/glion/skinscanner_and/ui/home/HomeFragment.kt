@@ -9,15 +9,15 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestPermissi
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.databinding.FragmentHomeBinding
-import com.glion.skinscanner_and.util.extension.checkPermission
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.extension.checkPermission
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

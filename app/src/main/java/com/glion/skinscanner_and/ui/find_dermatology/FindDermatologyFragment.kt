@@ -11,7 +11,7 @@ import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
-import com.glion.skinscanner_and.ui.dialog.ExplainMapDialog
+import com.glion.skinscanner_and.ui.dialog.FullScreenDialog
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
@@ -45,7 +45,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     private var networkStateCallback: NetworkConnectionCheck.NetworkStateCallback = object : NetworkConnectionCheck.NetworkStateCallback {
         override fun connect() {
             mParentActivity.runOnUiThread {
-                if(mNetworkWarnDialog?.isShowing == true) {
+                if(mNetworkWarnDialog?.isVisible == true) {
                     mNetworkWarnDialog?.dismiss()
                 }
             }
@@ -53,8 +53,8 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
 
         override fun disConnect() {
             mParentActivity.runOnUiThread {
-                if(mNetworkWarnDialog?.isShowing == false) {
-                    mNetworkWarnDialog?.show()
+                if(mNetworkWarnDialog?.isVisible == false) {
+                    mNetworkWarnDialog?.show(mParentActivity.supportFragmentManager, "NetworkWarnDialog")
                 }
             }
         }
@@ -64,7 +64,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext as Activity)
-        ExplainMapDialog(mContext).show()
+        FullScreenDialog(R.drawable.ic_near_dermatology).show(mParentActivity.supportFragmentManager, "ExampleFindDermatologyDialog")
         mFusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if(location != null) {
                 getDermatologyData(location.longitude.toString(), location.latitude.toString())
@@ -191,7 +191,6 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         }
         if(mNetworkWarnDialog == null) {
             mNetworkWarnDialog = CommonDialog(
-                mContext = mContext,
                 dialogType = CommonDialogType.OneButton,
                 isDismiss = false,
                 title = mContext.getString(R.string.notice),

@@ -21,7 +21,7 @@ abstract class BaseActivity<T: ViewDataBinding>(private val layoutResId: Int) : 
         binding = DataBindingUtil.setContentView(this, layoutResId)
         binding.lifecycleOwner = this
         mContext = this
-        mLoadingDialog = LoadingDialog(mContext)
+        mLoadingDialog = LoadingDialog()
     }
 
     fun showDialog(
@@ -35,15 +35,24 @@ abstract class BaseActivity<T: ViewDataBinding>(private val layoutResId: Int) : 
         listener: CommonDialog.DialogButtonClick
     ) {
         CommonDialog(
-            mContext = mContext,
             dialogType = dialogType,
             title = title,
             contents = contents,
-            isCancelable = isCancelable,
+            cancelable = isCancelable,
             leftBtnStr = leftBtnStr,
             rightBtnStr = rightBtnStr,
             singleBtnStr = singleBtnStr,
             listener = listener
-        ).show()
+        ).show(supportFragmentManager, "CommonDialog")
+    }
+
+    fun showProgress() {
+        mLoadingDialog.show(supportFragmentManager, "ProgressDialog")
+    }
+
+    fun hideProgress() {
+        if(mLoadingDialog.isVisible) {
+            mLoadingDialog.dismiss()
+        }
     }
 }

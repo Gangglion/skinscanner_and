@@ -115,9 +115,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
      * 앱 버전 체크
      */
     private fun checkVersion() {
-        mLoadingDialog.show()
+        showProgress()
         Firebase.database.reference.get().addOnSuccessListener {
-            mLoadingDialog.dismiss()
+            hideProgress()
             val serverVersion: AppVersion = it.getValue(AppVersion::class.java)!!
             val flag = Utility.compareAppVersion(serverVersion.versionName, serverVersion.versionType)
             when(flag) {
@@ -155,7 +155,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 }
             }
         }.addOnFailureListener {
-            mLoadingDialog.dismiss()
+            hideProgress()
             LogUtil.e("Error Getting Data", it)
             // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
         }

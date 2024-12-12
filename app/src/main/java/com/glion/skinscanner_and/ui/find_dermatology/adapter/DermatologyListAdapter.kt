@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.util.LogUtil
-import com.glion.skinscanner_and.databinding.ItemDermotologyListBinding
+import com.glion.skinscanner_and.databinding.ItemDermatologyListBinding
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.kakao.vectormap.GestureType
 import com.kakao.vectormap.KakaoMap
@@ -36,7 +36,7 @@ class DermatologyListAdapter(
         const val INFO_WINDOW_ID = "simpleLayout"
     }
 
-    inner class ViewHolder(private val binding: ItemDermotologyListBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemDermatologyListBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: DermatologyData) {
             with(binding) {
                 tvItemTitle.text = item.dermatologyTitle
@@ -64,7 +64,7 @@ class DermatologyListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemDermotologyListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemDermatologyListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
@@ -87,8 +87,7 @@ class DermatologyListAdapter(
         map.start(
             object : MapLifeCycleCallback() {
                 override fun onMapDestroy() {
-                    // 지도 API 가 정상적으로 종료될 떄 호출됨
-                    LogUtil.d("지도 API 가 정상적으로 종료됨")
+                    // note : 지도 API 가 정상적으로 종료될 떄 호출됨
                 }
 
                 override fun onMapError(e: Exception?) {
@@ -98,8 +97,7 @@ class DermatologyListAdapter(
             },
             object : KakaoMapReadyCallback() {
                 override fun onMapReady(kakaoMap: KakaoMap) {
-                    // 인증 API 가 정상적으로 실행될 때 호출됨
-                    LogUtil.d("인증 API 정상적으로 실행 됨")
+                    // note : 인증 API 가 정상적으로 실행될 때 호출됨
                     kakaoMap.apply{
                         setGestureEnable(GestureType.Zoom, false)
                         setGestureEnable(GestureType.Pan, false)

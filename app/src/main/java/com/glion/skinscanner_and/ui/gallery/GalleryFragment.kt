@@ -41,14 +41,14 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                 } else {
                     with(mParentActivity) {
                         showToast(mContext.getString(R.string.fail_get_image))
-                        mLoadingDialog.dismiss()
+                        hideProgress()
                         changeFragment(ScreenType.Home)
                     }
                 }
             }
             else -> {
                 with(mParentActivity){
-                    mLoadingDialog.dismiss()
+                    hideProgress()
                     changeFragment(ScreenType.Home)
                 }
             }
@@ -121,10 +121,10 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                 putString(Define.RESULT, resultCancer)
                 putInt(Define.VALUE, percent)
             }
-            mLoadingDialog.dismiss()
+            hideProgress()
             mParentActivity.changeFragment(ScreenType.Result, bundle)
         } else {
-            mLoadingDialog.dismiss()
+            hideProgress()
             val bundle = Bundle().apply {
                 putString(Define.RESULT, mContext.getString(R.string.not_cancer))
             }

@@ -34,6 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -116,7 +117,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             }
             mBinding.tvDoAnalyze.id -> {
                 mLoadingDialog.setMessage(mContext.getString(R.string.wait_for_process_image))
-                mLoadingDialog.show()
+                showProgress()
                 startAnalyze()
             }
         }
@@ -124,27 +125,32 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private fun takePhoto() {
         if(mImageCapture == null) return
+        showProgress()
         mImageCapture?.takePicture(ContextCompat.getMainExecutor(mContext), object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                val bitmap = Bitmap.createBitmap(image.toBitmap(), 0, 0, image.width, image.height, Matrix().also{ it.setRotate(90F) }, true)
-                val croppedBitmap = cropImage(bitmap)
-                Utility.saveBitmapInCache(croppedBitmap, mContext)
-                image.close()
-                Glide.with(mContext).load(croppedBitmap).apply(
-                    // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
-                    RequestOptions()
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                ).into(mBinding.ivPreview)
-                mBinding.clCamera.visibility = View.GONE
-                mBinding.clPreview.visibility = View.VISIBLE
+                CoroutineScope(Dispatchers.Main).launch {
+                    val croppedBitmap = withContext(Dispatchers.Default) {
+                        val bitmap = Bitmap.createBitmap(image.toBitmap(), 0, 0, image.width, image.height, Matrix().also{ it.setRotate(90F) }, true)
+                        image.close()
+                        cropImage(bitmap)
+                    }
+                    Glide.with(mContext).load(croppedBitmap).apply(
+                        // 캐시에 저장된 이전 이미지를 재활용 하지 않도록 처리한다
+                        RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    ).into(mBinding.ivPreview)
+                    mBinding.clCamera.visibility = View.GONE
+                    mBinding.clPreview.visibility = View.VISIBLE
+                    hideProgress()
+                }
             }
 
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)
                 showToast(mContext.getString(R.string.fail_capture))
-                mLoadingDialog.dismiss()
+                hideProgress()
                 mBinding.clCamera.visibility = View.VISIBLE
                 mBinding.clPreview.visibility = View.GONE
             }
@@ -195,7 +201,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 LogUtil.e("startAnalyze - 분석 실패")
                 with(mParentActivity) {
                     showToast("분석에 실패했습니다.")
-                    mLoadingDialog.dismiss()
+                    hideProgress()
                     startCamera()
                 }
             }
@@ -244,10 +250,10 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 putString(Define.RESULT, resultCancer)
                 putInt(Define.VALUE, percent)
             }
-            mLoadingDialog.dismiss()
+            hideProgress()
             mParentActivity.changeFragment(ScreenType.Result, bundle)
         } else {
-            mLoadingDialog.dismiss()
+            hideProgress()
             val bundle = Bundle().apply {
                 putString(Define.RESULT, mContext.getString(R.string.not_cancer))
             }

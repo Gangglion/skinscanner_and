@@ -83,7 +83,7 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                 val croppedImage = mBinding.cropView.getCroppedImage()!!
                 Utility.saveBitmapInCache(croppedImage, mContext)
                 startAnalyze(croppedImage)
-                mLoadingDialog.show()
+                showProgress()
             }
         }
     }
@@ -99,10 +99,10 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                 putString(Define.RESULT, resultCancer)
                 putInt(Define.VALUE, percent)
             }
-            mLoadingDialog.dismiss()
+            hideProgress()
             mParentActivity.changeFragment(ScreenType.Result, bundle)
         } else {
-            mLoadingDialog.dismiss()
+            hideProgress()
             val bundle = Bundle().apply {
                 putString(Define.RESULT, mContext.getString(R.string.not_cancer))
             }

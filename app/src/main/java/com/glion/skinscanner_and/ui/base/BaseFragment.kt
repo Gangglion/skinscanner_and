@@ -32,7 +32,7 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mParentActivity = requireActivity() as A
-        mLoadingDialog = LoadingDialog(mContext)
+        mLoadingDialog = LoadingDialog()
     }
 
     override fun onCreateView(
@@ -61,15 +61,24 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
         listener: CommonDialog.DialogButtonClick
     ) {
         CommonDialog(
-            mContext = mContext,
             dialogType = dialogType,
             title = title,
             contents = contents,
-            isCancelable = isCancelable,
+            cancelable = isCancelable,
             leftBtnStr = leftBtnStr,
             rightBtnStr = rightBtnStr,
             singleBtnStr = singleBtnStr,
             listener = listener
-        ).show()
+        ).show(mParentActivity.supportFragmentManager, "CommonDialog")
+    }
+
+    fun showProgress() {
+        mLoadingDialog.show(mParentActivity.supportFragmentManager, "ProgressDialog")
+    }
+
+    fun hideProgress() {
+        if(mLoadingDialog.isVisible) {
+            mLoadingDialog.dismiss()
+        }
     }
 }
