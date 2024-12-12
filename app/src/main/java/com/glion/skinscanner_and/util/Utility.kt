@@ -69,7 +69,7 @@ object Utility{
         try {
             file.createNewFile()
             val fileOutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
             fileOutputStream.close()
         } catch(e: Exception) {
             LogUtil.e("File Saved Fail", e)

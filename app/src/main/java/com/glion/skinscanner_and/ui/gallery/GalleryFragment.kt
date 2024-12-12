@@ -36,14 +36,7 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                     val bitmap = Utility.convertUriToBitmap(uri, mContext)
                     bitmap?.let {
                         Utility.saveBitmapInCache(bitmap, mContext)
-                        // 갤러리에서 가져온 사진이  width : 600, height : 450 이 아닐경우 리사이즈
-                        if(bitmap.width > 600 || bitmap.height > 450) {
-                            mParentActivity.changeFragment(ScreenType.Resize)
-                        } else{
-                            mLoadingDialog.setMessage(mContext.getString(R.string.wait_for_process_image))
-                            mLoadingDialog.show()
-                            startAnalyze(it.copy(Bitmap.Config.ARGB_8888, true))
-                        }
+                        mParentActivity.changeFragment(ScreenType.Resize)
                     }
                 } else {
                     with(mParentActivity) {
