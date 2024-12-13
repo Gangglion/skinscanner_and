@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -32,7 +33,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         private const val READ_MEDIA_VISUAL_USER_SELECTED = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
     }
 
-    private val responseCameraPermission = registerForActivityResult(RequestPermission()) { isGranted ->
+    private val requestCameraPermission = registerForActivityResult(RequestPermission()) { isGranted ->
         if(isGranted) {
             mParentActivity.changeFragment(ScreenType.Camera)
         } else {
@@ -40,11 +41,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         }
     }
 
-    private val requestGalleryPermission = registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
-        if (isGranted) { // 권한을 허용했다면
-            mParentActivity.changeFragment(ScreenType.Gallery)
-        } else { // 권한을 허용하지 않았다면
+    private val requestGalleryPermissions = registerForActivityResult(RequestMultiplePermissions()) { result ->
+        if(result.values.any { isAllow -> !isAllow }) { // note : 권한을 허용하지 않았다면
             showDeniedMediaPermissionDialog()
+        } else {
+            mParentActivity.changeFragment(ScreenType.Gallery)
         }
     }
 
@@ -64,15 +65,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             mBinding.llOpenGallery.id -> {
                 when (Build.VERSION.SDK_INT) {
                     Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
-                        handleClickOpenGallery(READ_MEDIA_VISUAL_USER_SELECTED)
+                        handleClickOpenGallery(arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED))
                     }
 
                     Build.VERSION_CODES.TIRAMISU -> {
-                        handleClickOpenGallery(READ_MEDIA_IMAGES)
+                        handleClickOpenGallery(arrayOf(READ_MEDIA_IMAGES))
                     }
 
                     else -> {
-                        handleClickOpenGallery(READ_EXTERNAL_STORAGE)
+                        handleClickOpenGallery(arrayOf(READ_EXTERNAL_STORAGE))
                     }
                 }
             }
@@ -89,24 +90,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
                 showDeniedCameraPermissionDialog()
             }
             else -> {
-                responseCameraPermission.launch(Manifest.permission.CAMERA)
+                requestCameraPermission.launch(Manifest.permission.CAMERA)
             }
         }
     }
 
-    private fun handleClickOpenGallery(permission: String) {
-        when {
-            mContext.checkPermission(permission) -> {
-                mParentActivity.changeFragment(ScreenType.Gallery)
+    private fun handleClickOpenGallery(permissions: Array<String>) {
+        val rejectedPermissions: MutableList<String> = mutableListOf()
+        for(pm in permissions) {
+            when {
+                mContext.checkPermission(pm) -> {  }
+                shouldShowRequestPermissionRationale(pm) -> {
+                    showDeniedMediaPermissionDialog()
+                    return
+                }
+                else -> {
+                    rejectedPermissions.add(pm)
+                }
             }
-
-            shouldShowRequestPermissionRationale(permission) -> {
-                showDeniedMediaPermissionDialog()
-            }
-
-            else -> { // 권한 허용 안되어있을 때
-                requestGalleryPermission.launch(permission)
-            }
+        }
+        if(rejectedPermissions.isEmpty()) { // note : 허용하지 않은 권한이 없을때
+            mParentActivity.changeFragment(ScreenType.Gallery)
+        } else {
+            requestGalleryPermissions.launch(rejectedPermissions.toTypedArray())
         }
     }
 
