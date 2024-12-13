@@ -7,13 +7,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.glion.skinscanner_and.AppVersion
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.base.BaseActivity
 import com.glion.skinscanner_and.ui.camera.CameraFragment
-import com.glion.skinscanner_and.ui.dialog.CommonDialog
-import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.FindDermatologyFragment
 import com.glion.skinscanner_and.ui.gallery.GalleryFragment
@@ -21,10 +18,6 @@ import com.glion.skinscanner_and.ui.gallery.ResizeFragment
 import com.glion.skinscanner_and.ui.home.HomeFragment
 import com.glion.skinscanner_and.ui.result.ResultFragment
 import com.glion.skinscanner_and.util.Define
-import com.glion.skinscanner_and.util.LogUtil
-import com.glion.skinscanner_and.util.Utility
-import com.google.firebase.Firebase
-import com.google.firebase.database.database
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -69,10 +62,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             insets
         }
         onBackPressedDispatcher.addCallback(backPressed)
-
-        // note : 인터넷이 연결되어있을때만 앱 버전 체크
-        if(Utility.checkNetworkStatus(mContext))
-            checkVersion()
     }
 
     fun changeFragment(type: ScreenType, bundle: Bundle? = null) {
@@ -108,56 +97,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 if(bundle != null) fragment.arguments = bundle
                 supportFragmentManager.beginTransaction().replace(binding.fcView.id, fragment).commit()
             }
-        }
-    }
-
-    /**
-     * 앱 버전 체크
-     */
-    private fun checkVersion() {
-        showProgress()
-        Firebase.database.reference.get().addOnSuccessListener {
-            hideProgress()
-            val serverVersion: AppVersion = it.getValue(AppVersion::class.java)!!
-            val flag = Utility.compareAppVersion(serverVersion.versionName, serverVersion.versionType)
-            when(flag) {
-                0 -> { /* note : 업데이트 하지 않음 */ }
-                1 -> {
-                    // note : 선택업데이트
-                    showDialog(
-                        dialogType = CommonDialogType.TwoButton,
-                        title = mContext.getString(R.string.default_dialog_title),
-                        contents = mContext.getString(R.string.update_dialog_contents),
-                        leftBtnStr = mContext.getString(R.string.update_later),
-                        rightBtnStr = mContext.getString(R.string.update_now),
-                        listener = object : CommonDialog.DialogButtonClick {
-                            override fun rightBtnClick() {
-                                super.rightBtnClick()
-                                Utility.goMarket(mContext)
-                            }
-                        }
-                    )
-                }
-                2 -> {
-                    // note : 강제업데이트
-                    showDialog(
-                        dialogType = CommonDialogType.OneButton,
-                        title = mContext.getString(R.string.default_dialog_title),
-                        contents = mContext.getString(R.string.update_force_dialog_contents),
-                        singleBtnStr = mContext.getString(R.string.update_now),
-                        listener = object : CommonDialog.DialogButtonClick {
-                            override fun singleBtnClick() {
-                                super.singleBtnClick()
-                                Utility.goMarket(mContext)
-                            }
-                        }
-                    )
-                }
-            }
-        }.addOnFailureListener {
-            hideProgress()
-            LogUtil.e("Error Getting Data", it)
-            // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
         }
     }
 }
