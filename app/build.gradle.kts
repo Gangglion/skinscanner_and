@@ -11,6 +11,8 @@ plugins {
     // hilt
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    // navigation SafeArgs
+    id("androidx.navigation.safeargs")
 }
 
 val properties = Properties().apply {
@@ -135,8 +137,8 @@ dependencies {
     implementation(libs.firebase.database)
 
     // android fragment navigation
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
 
     // hilt
     implementation(libs.hilt.android)

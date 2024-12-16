@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentGalleryBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,20 +23,20 @@ class GalleryFragment : BaseFragment<FragmentGalleryBinding, MainActivity>(R.lay
                     val bitmap = Utility.convertUriToBitmap(uri, mContext)
                     bitmap?.let {
                         Utility.saveBitmapInCache(bitmap, mContext)
-                        mParentActivity.changeFragment(ScreenType.Resize)
+                        findNavController().navigate(R.id.action_galleryFragment_to_resizeFragment)
                     }
                 } else {
                     with(mParentActivity) {
                         showToast(mContext.getString(R.string.fail_get_image))
                         hideProgress()
-                        changeFragment(ScreenType.Home)
+                        findNavController().navigateUp()
                     }
                 }
             }
             else -> {
                 with(mParentActivity){
                     hideProgress()
-                    changeFragment(ScreenType.Home)
+                    findNavController().navigateUp()
                 }
             }
         }

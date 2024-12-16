@@ -4,13 +4,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentResizeBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.admob.AdmobInterface
 import com.glion.skinscanner_and.util.admob.AdmobUtil
@@ -95,18 +94,13 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                 CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
                 CancerType.MEL -> mContext.getString(R.string.cancer_mel)
             }
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, resultCancer)
-                putInt(Define.VALUE, percent)
-            }
             hideProgress()
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
+            val action = ResizeFragmentDirections.actionResizeFragmentToResultFragment(resultCancer, percent)
+            findNavController().navigate(action)
         } else {
             hideProgress()
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-            }
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
+            val action = ResizeFragmentDirections.actionResizeFragmentToResultFragment(mContext.getString(R.string.not_cancer), -1)
+            findNavController().navigate(action)
         }
     }
 }

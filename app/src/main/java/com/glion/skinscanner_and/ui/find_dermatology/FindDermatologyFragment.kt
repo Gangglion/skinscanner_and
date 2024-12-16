@@ -5,6 +5,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
 import com.glion.skinscanner_and.ui.MainActivity
@@ -12,7 +13,6 @@ import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.dialog.FullScreenDialog
-import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
 import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
 import com.glion.skinscanner_and.util.Define
@@ -68,7 +68,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
 
         with(mBinding) {
             btnTemp.setOnClickListener {
-                mParentActivity.changeFragment(ScreenType.Home)
+                findNavController().navigate(R.id.action_findDermatologyFragment_to_homeFragment)
             }
             swiperefreshlayout.setOnRefreshListener {
                 mDataList.clear()

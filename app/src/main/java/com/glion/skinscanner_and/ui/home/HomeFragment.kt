@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestMultiple
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentHomeBinding
 import com.glion.skinscanner_and.ui.MainActivity
@@ -16,7 +17,6 @@ import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.camera.CameraFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
-import com.glion.skinscanner_and.ui.enums.ScreenType
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.extension.checkPermission
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +35,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
 
     private val requestCameraPermission = registerForActivityResult(RequestPermission()) { isGranted ->
         if(isGranted) {
-            mParentActivity.changeFragment(ScreenType.Camera)
+            findNavController().navigate(R.id.action_homeFragment_to_cameraFragment)
         } else {
             showDeniedCameraPermissionDialog()
         }
@@ -45,7 +45,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         if(result.values.any { isAllow -> !isAllow }) { // note : 권한을 허용하지 않았다면
             showDeniedMediaPermissionDialog()
         } else {
-            mParentActivity.changeFragment(ScreenType.Gallery)
+            findNavController().navigate(R.id.action_homeFragment_to_galleryFragment)
         }
     }
 
@@ -84,7 +84,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
         when {
             mContext.checkPermission(Manifest.permission.CAMERA) -> {
                 CameraFragment.isBackCamera = true
-                mParentActivity.changeFragment(ScreenType.Camera)
+                findNavController().navigate(R.id.action_homeFragment_to_cameraFragment)
             }
             ActivityCompat.shouldShowRequestPermissionRationale(mParentActivity, Manifest.permission.CAMERA) -> {
                 showDeniedCameraPermissionDialog()
@@ -110,7 +110,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, MainActivity>(R.layout.fr
             }
         }
         if(rejectedPermissions.isEmpty()) { // note : 허용하지 않은 권한이 없을때
-            mParentActivity.changeFragment(ScreenType.Gallery)
+            findNavController().navigate(R.id.action_homeFragment_to_galleryFragment)
         } else {
             requestGalleryPermissions.launch(rejectedPermissions.toTypedArray())
         }

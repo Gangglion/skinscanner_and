@@ -9,19 +9,19 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.databinding.FragmentResultBinding
-import com.glion.skinscanner_and.util.extension.checkPermission
 import com.glion.skinscanner_and.ui.MainActivity
+import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
-import com.glion.skinscanner_and.ui.enums.ScreenType
+import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.extension.checkPermission
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationRequest
@@ -73,11 +73,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
             mCancerResult = it.getString(Define.RESULT)
             mCancerPercent = it.getInt(Define.VALUE, -1)
         }
-        // 뒤로가기를 위한 데이터 저장
-        with(mParentActivity) {
-            savedCancerResult = mCancerResult
-            savedPercent = mCancerPercent
-        }
+
         mBinding.tvNext.setOnClickListener(this)
         setLayout()
     }
@@ -90,7 +86,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
                     handleClickFindDermatology()
                 } else { // 암이 아닐 경우
                     Utility.deleteImage(mContext)
-                    mParentActivity.changeFragment(ScreenType.Home)
+                    findNavController().navigate(R.id.action_resultFragment_to_homeFragment)
                 }
             }
         }
@@ -156,7 +152,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
         task.addOnSuccessListener {
             mParentActivity.runOnUiThread {
                 if(Utility.checkNetworkStatus(mContext)) { // note : 인터넷에 연결되어있을 경우 이동
-                    mParentActivity.changeFragment(ScreenType.Find)
+                    findNavController().navigate(R.id.action_resultFragment_to_findDermatologyFragment)
                 } else {
                     showDialog(
                         dialogType = CommonDialogType.TwoButton,
@@ -168,7 +164,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
                             override fun leftBtnClick() {
                                 super.leftBtnClick()
                                 Utility.deleteImage(mContext)
-                                mParentActivity.changeFragment(ScreenType.Home)
+                                findNavController().navigate(R.id.action_resultFragment_to_homeFragment)
                             }
                         }
                     )
@@ -196,7 +192,7 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
             LOCATION_RESULT_CODE -> {
                 when(resultCode) {
                     Activity.RESULT_OK -> {
-                        mParentActivity.changeFragment(ScreenType.Find)
+                        findNavController().navigate(R.id.action_resultFragment_to_findDermatologyFragment)
                     }
                     Activity.RESULT_CANCELED -> {
                         checkLocationSetting()

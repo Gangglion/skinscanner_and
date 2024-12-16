@@ -14,6 +14,7 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -22,8 +23,6 @@ import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentCameraBinding
 import com.glion.skinscanner_and.ui.MainActivity
 import com.glion.skinscanner_and.ui.base.BaseFragment
-import com.glion.skinscanner_and.ui.enums.ScreenType
-import com.glion.skinscanner_and.util.Define
 import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.admob.AdmobInterface
@@ -40,6 +39,7 @@ import java.util.concurrent.Executors
 
 @AndroidEntryPoint
 class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener, CancerQuantized.InferenceCallback {
+    private lateinit var mCameraProvider: ProcessCameraProvider
     companion object {
         var isBackCamera = true
     }
@@ -72,7 +72,16 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
     private fun startCamera() {
         val cameraProviderFeature = ProcessCameraProvider.getInstance(mContext)
         cameraProviderFeature.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFeature.get()
+            mCameraProvider = cameraProviderFeature.get()
+            bindCamera()
+        }, ContextCompat.getMainExecutor(mContext))
+        mBinding.clCamera.visibility = View.VISIBLE
+        mBinding.clPreview.visibility = View.GONE
+    }
+
+    private fun bindCamera() {
+        mCameraProvider.unbindAll()
+        try {
             val preview = Preview.Builder()
                 .build().also {
                     it.setSurfaceProvider(mBinding.previewCamera.surfaceProvider)
@@ -88,21 +97,17 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                     setResolutionSelector(resolutionSelectorBuilder.build())
                 }
                 .build()
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, mImageCapture) // CameraProvider 에 ImageCapture 정보 넘긴다.
-            } catch(e: Exception) {
-                LogUtil.e("User Case Binding Failed", e)
-            }
-        }, ContextCompat.getMainExecutor(mContext))
-        mBinding.clCamera.visibility = View.VISIBLE
-        mBinding.clPreview.visibility = View.GONE
+            mCameraProvider.bindToLifecycle(this, cameraSelector, preview, mImageCapture) // CameraProvider 에 ImageCapture 정보 넘긴다.
+        } catch(e: Exception) {
+            LogUtil.e("User Case Binding Failed", e)
+        }
+
     }
 
     override fun onClick(v: View?) {
         when(v!!.id) {
             mBinding.btnClose.id -> {
-                mParentActivity.changeFragment(ScreenType.Home)
+                findNavController().navigateUp()
             }
             mBinding.btnChangeCamera.id -> {
                 changeCamera()
@@ -162,7 +167,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
      */
     private fun changeCamera() {
         isBackCamera = !isBackCamera
-        mParentActivity.changeFragment(ScreenType.Camera)
+        bindCamera()
     }
 
     private fun cropImage(originBitmap: Bitmap): Bitmap {
@@ -246,18 +251,13 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
                 CancerType.MEL -> mContext.getString(R.string.cancer_mel)
             }
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, resultCancer)
-                putInt(Define.VALUE, percent)
-            }
             hideProgress()
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
+            val action = CameraFragmentDirections.actionCameraFragmentToResultFragment(resultCancer, percent)
+            findNavController().navigate(action)
         } else {
             hideProgress()
-            val bundle = Bundle().apply {
-                putString(Define.RESULT, mContext.getString(R.string.not_cancer))
-            }
-            mParentActivity.changeFragment(ScreenType.Result, bundle)
+            val action = CameraFragmentDirections.actionCameraFragmentToResultFragment(mContext.getString(R.string.not_cancer), -1)
+            findNavController().navigate(action)
         }
 
     }
