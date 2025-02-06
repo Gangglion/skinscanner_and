@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.glion.skinscanner_and.R
-import com.glion.skinscanner_and.util.LogUtil
+import com.glion.skinscanner_and.data.api.data.DocumentData
 import com.glion.skinscanner_and.databinding.ItemDermatologyListBinding
-import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
+import com.glion.skinscanner_and.util.LogUtil
 import com.kakao.vectormap.GestureType
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -30,7 +30,7 @@ import com.kakao.vectormap.mapwidget.component.Orientation
 
 class DermatologyListAdapter(
     private val mContext: Context,
-    private val itemList: MutableList<DermatologyData>
+    private val itemList: MutableList<DocumentData>
 ) : RecyclerView.Adapter<DermatologyListAdapter.ViewHolder>() {
     companion object {
         const val LABEL_ID = "iconLabel"
@@ -38,7 +38,7 @@ class DermatologyListAdapter(
     }
 
     inner class ViewHolder(private val binding: ItemDermatologyListBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DermatologyData) {
+        fun bind(item: DocumentData) {
             with(binding) {
                 tvItemTitle.text = item.dermatologyTitle
                 tvItemAddr.text = item.dermatologyAddr
@@ -94,7 +94,7 @@ class DermatologyListAdapter(
      * 주변 피부과 데이터 업데이트
      * @param [newItemList] 추가되는 아이템 리스트
      */
-    fun updateData(newItemList: List<DermatologyData>) {
+    fun updateData(newItemList: List<DocumentData>) {
         val diffCallback = object : DiffUtil.Callback() {
             override fun getOldListSize(): Int = itemList.size
 
@@ -118,7 +118,7 @@ class DermatologyListAdapter(
     /**
      * 장소 카카오맵 세팅
      */
-    private fun setMap(map: MapView, item: DermatologyData) {
+    private fun setMap(map: MapView, item: DocumentData) {
         map.start(
             object : MapLifeCycleCallback() {
                 override fun onMapDestroy() {
@@ -151,7 +151,7 @@ class DermatologyListAdapter(
     /**
      * 병원 위치에 마커 추가
      */
-    private fun setMarker(kakaoMap: KakaoMap, item: DermatologyData) {
+    private fun setMarker(kakaoMap: KakaoMap, item: DocumentData) {
         val pos = LatLng.from(item.dermatologyLat, item.dermatologyLng)
         val labelLayer = kakaoMap.labelManager?.layer
         val labelStyles = LabelStyles.from(LabelStyle.from(R.drawable.ic_location_pin).setIconTransition(LabelTransition.from(Transition.None, Transition.None)))
@@ -162,7 +162,7 @@ class DermatologyListAdapter(
     /**
      * 병원 위치에 레이블 추가
      */
-    private fun setInfoBalloon(kakaoMap: KakaoMap, item: DermatologyData) {
+    private fun setInfoBalloon(kakaoMap: KakaoMap, item: DocumentData) {
         // InfoWindow 사용 시
         val body = GuiLayout(Orientation.Horizontal)
         body.setPadding(20, 20, 20, 18)

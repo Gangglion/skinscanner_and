@@ -72,8 +72,11 @@ abstract class BaseFragment<T: ViewDataBinding, A: AppCompatActivity>(private va
         ).show(mParentActivity.supportFragmentManager, "CommonDialog")
     }
 
-    fun showProgress() {
-        mLoadingDialog.show(mParentActivity.supportFragmentManager, "ProgressDialog")
+    fun showProgress(msg: String = "Loading...") {
+        mLoadingDialog.apply {
+//            setMessage(msg)
+            show(mParentActivity.supportFragmentManager, "ProgressDialog")
+        }
     }
 
     fun hideProgress() {

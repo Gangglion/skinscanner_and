@@ -1,10 +1,12 @@
 package com.glion.skinscanner_and.ui.find_dermatology
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentFindDermatologyBinding
@@ -14,32 +16,16 @@ import com.glion.skinscanner_and.ui.dialog.CommonDialog
 import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.ui.dialog.FullScreenDialog
 import com.glion.skinscanner_and.ui.find_dermatology.adapter.DermatologyListAdapter
-import com.glion.skinscanner_and.ui.find_dermatology.data.DermatologyData
-import com.glion.skinscanner_and.util.Define
-import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.NetworkConnectionCheck
 import com.glion.skinscanner_and.util.Utility
-import com.glion.skinscanner_and.util.network.ApiClient
-import com.glion.skinscanner_and.util.response.ResponseKeyword
-import com.google.android.gms.location.CurrentLocationRequest
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import dagger.hilt.android.AndroidEntryPoint
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 @SuppressLint("MissingPermission")
 class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, MainActivity>(R.layout.fragment_find_dermatology) {
+    private val findDermatologyViewModel: FindDermatologyViewModel by viewModels()
     private lateinit var mListAdapter: DermatologyListAdapter
-    private val mDataList: MutableList<DermatologyData> = mutableListOf()
-    private var mSearchPage = 1
-    private lateinit var mFusedLocationClient: FusedLocationProviderClient
 
     private var networkConnectionCheck: NetworkConnectionCheck? = null
     private var mNetworkWarnDialog: CommonDialog? = null
@@ -63,7 +49,6 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext as Activity)
         FullScreenDialog(R.drawable.ic_near_dermatology).show(mParentActivity.supportFragmentManager, "ExampleFindDermatologyDialog")
 
         with(mBinding) {
@@ -71,28 +56,19 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
                 findNavController().navigate(R.id.action_findDermatologyFragment_to_homeFragment)
             }
             swiperefreshlayout.setOnRefreshListener {
-                mDataList.clear()
-                mSearchPage = 1
-                getCurrentLocation()
+                findDermatologyViewModel.getCurrentLocation()
             }
             mListAdapter = DermatologyListAdapter(mContext, mutableListOf())
             rcList.adapter = mListAdapter
         }
 
         initNetworkCheck()
+        observeDataListInfo()
     }
 
     override fun onResume() {
         super.onResume()
-        mFusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if(location != null) {
-                mDataList.clear()
-                mSearchPage = 1
-                getDermatologyData(location.longitude.toString(), location.latitude.toString())
-            } else { // 재부팅으로 인해 캐시에 저장된 위치가 없을 경우, 새로 위치 갱신 후 카카오맵 세팅
-                getCurrentLocation()
-            }
-        }
+        findDermatologyViewModel.getLastLocation()
     }
 
     override fun onDestroy() {
@@ -101,103 +77,27 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
         networkConnectionCheck = null
     }
 
-    /**
-     * 피부과 데이터 가져오기 API 호출 함수
-     */
-    private fun getDermatologyData(x: String, y: String) {
-        callSearchKeyword(x, y) { isEnd ->
-            if(isEnd) {
-                sortList()
-                mListAdapter.updateData(mDataList)
-                mBinding.swiperefreshlayout.isRefreshing = false
-            } else {
-                // note : 실패한 경우
-                showToast(mContext.getString(R.string.network_error))
-            }
-        }
-    }
-
-    private fun callSearchKeyword(x: String, y: String, callback: (Boolean) -> Unit) {
-        ApiClient.api.searchKeyword(Define.DERMATOLOGY, Define.DERMATOLOGY_TYPE, x, y, 3000, mSearchPage).enqueue(object : Callback<ResponseKeyword> {
-            override fun onResponse(call: Call<ResponseKeyword>, response: Response<ResponseKeyword>) {
-                if(response.isSuccessful) {
-                    val body = response.body()
-                    if(body != null) {
-                        val getItems = body.documents.map { item ->
-                            DermatologyData(
-                                dermatologyTitle = item.placeName,
-                                dermatologyUrl = item.placeUrl,
-                                dermatologyNumber = item.phone,
-                                dermatologyAddr = item.addressName,
-                                dermatologyDist = item.distance,
-                                dermatologyLat = item.y.toDouble(),
-                                dermatologyLng = item.x.toDouble()
-                            )
+    private fun observeDataListInfo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                findDermatologyViewModel.uiState.collect { uiState ->
+                    when(uiState) {
+                        is FindDermatologyState.Loading -> { }
+                        is FindDermatologyState.Success -> {
+                            hideProgress()
+                            mListAdapter.updateData(uiState.dermatologyDataList)
+                            mBinding.swiperefreshlayout.isRefreshing = false
                         }
-
-                        mDataList.addAll(getItems)
-
-                        if(!body.meta.is_end) {
-                            mSearchPage++
-                            callSearchKeyword(x, y, callback)
-                        } else {
-                            callback(true)
+                        is FindDermatologyState.Error -> {
+                            hideProgress()
+                            if(uiState.message == null)
+                                showToast(mContext.getString(R.string.network_error))
+                            else
+                                showToast(uiState.message)
                         }
-                    } else {
-                        callback(false)
                     }
-                } else {
-                    callback(false)
                 }
             }
-
-            override fun onFailure(call: Call<ResponseKeyword>, throwable: Throwable) {
-                LogUtil.e("Api fail", throwable as? Exception)
-                callback(false)
-            }
-        })
-    }
-
-    /**
-     * 거리가 가까운 순으로 리스트 정렬
-     */
-    private fun sortList() {
-        val comparator = compareBy<DermatologyData> { it.dermatologyDist.toFloat() }
-        mDataList.sortWith(comparator)
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getCurrentLocation() {
-        mFusedLocationClient.getCurrentLocation(createCurrentLocationRequest(), createCancellationToken())
-            .addOnSuccessListener {
-                getDermatologyData(it.longitude.toString(), it.latitude.toString())
-            }
-            .addOnFailureListener {
-                Toast.makeText(mContext, "현재 위치 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
-                getDermatologyData("126.9782038", "37.5665851")
-            }
-    }
-
-    /**
-     * 현재 위치 가져올 수 있는 요청 Builder 생성 반환
-     */
-    private fun createCurrentLocationRequest() =
-        CurrentLocationRequest.Builder()
-            .setDurationMillis(10000)
-            .setMaxUpdateAgeMillis(10000)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .build()
-
-    /**
-     * 현재 위치 가져오기 실패했을때의 토큰 반환
-     */
-    private fun createCancellationToken() : CancellationToken = object : CancellationToken() {
-        override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken {
-            return CancellationTokenSource().token
-        }
-
-        override fun isCancellationRequested(): Boolean {
-            return false
         }
     }
 

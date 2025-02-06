@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.ui.find_dermatology.data
+package com.glion.skinscanner_and.data.api.data
 
 /**
  * 피부과 데이터
@@ -11,6 +11,11 @@ package com.glion.skinscanner_and.ui.find_dermatology.data
  * @property [dermatologyLng] 경도
  */
 data class DermatologyData(
+    val dermatologyDataList: List<DocumentData>,
+    val isEnd: Boolean
+)
+
+data class DocumentData(
     val dermatologyTitle: String,
     val dermatologyUrl: String,
     val dermatologyNumber: String,

@@ -14,6 +14,10 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -27,8 +31,6 @@ import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.admob.AdmobInterface
 import com.glion.skinscanner_and.util.admob.AdmobUtil
-import com.glion.skinscanner_and.util.tflite.CancerQuantized
-import com.glion.skinscanner_and.util.tflite.CancerType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +40,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @AndroidEntryPoint
-class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener, CancerQuantized.InferenceCallback {
+class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layout.fragment_camera), OnClickListener {
+    private val viewModel: CameraViewModel by viewModels()
     private lateinit var mCameraProvider: ProcessCameraProvider
     companion object {
         var isBackCamera = true
@@ -46,7 +49,10 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
+    private var admobUtil: AdmobUtil? = null
     private var earnedReward: String = ""
+
+    private var movedAction: CameraFragmentDirections.ActionCameraFragmentToResultFragment? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,6 +68,8 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             tvReCapture.setOnClickListener(this@CameraFragment)
             tvDoAnalyze.setOnClickListener(this@CameraFragment)
         }
+        admobUtil = setAdmob()
+        observeUiState()
     }
 
     override fun onDestroyView() {
@@ -121,9 +129,8 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 startCamera()
             }
             mBinding.tvDoAnalyze.id -> {
-                mLoadingDialog.setMessage(mContext.getString(R.string.wait_for_process_image))
-                showProgress()
-                startAnalyze()
+                showProgress(mContext.getString(R.string.wait_for_process_image))
+                viewModel.doCancerAnalyze()
             }
         }
     }
@@ -191,41 +198,41 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
         }
     }
 
-    /**
-     * 촬영한 이미지로 분석 시작
-     */
-    private fun startAnalyze() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val cancerQuantized = CancerQuantized(mContext, this@CameraFragment)
-            val bitmap: Bitmap? = Utility.getImageToBitmap(mContext, mContext.getString(R.string.saved_file_name))
-            if(bitmap != null) {
-                cancerQuantized.processImage(bitmap).also {
-                    cancerQuantized.recognizeCancer(it)
-                }
-            } else {
-                LogUtil.e("startAnalyze - 분석 실패")
-                with(mParentActivity) {
-                    showToast("분석에 실패했습니다.")
-                    hideProgress()
-                    startCamera()
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    when(uiState) {
+                        is CameraUiState.OnLoading -> {  }
+                        is CameraUiState.OnProcessing -> {
+                            hideProgress()
+                            setAdmob().showAd()
+                        }
+                        is CameraUiState.OnError -> {
+                            showToast(uiState.msg)
+                            startCamera()
+                        }
+                        is CameraUiState.OnSuccess -> {
+                            movedAction = CameraFragmentDirections.actionCameraFragmentToResultFragment(uiState.analyzeResult.cancerType, uiState.analyzeResult.percent)
+                        }
+                    }
                 }
             }
         }
     }
 
-    /**
-     * 모델 추론 왼료되면 광고 띄워줌
-     */
-    override fun onResult(cancerType: CancerType?, percent: Int) {
-        val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
+    private fun setAdmob() : AdmobUtil {
+        return AdmobUtil(mParentActivity, object : AdmobInterface {
             override fun adDismiss() {
                 if(BuildConfig.DEBUG) {
                     if(earnedReward == "coins") {
-                        processIsCancer(cancerType, percent)
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
                     }
                 } else {
                     if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
-                        processIsCancer(cancerType, percent)
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
                     }
                 }
             }
@@ -235,30 +242,9 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             }
 
             override fun adError() {
-                processIsCancer(cancerType, percent)
+                hideProgress()
+                findNavController().navigate(movedAction!!)
             }
         })
-        adMobUtil.showAd()
-    }
-
-    /**
-     * 광고 시청 이후, 암인지 이난지 결과를 보여주는 화면으로 이동
-     */
-    private fun processIsCancer(cancerType: CancerType?, percent: Int) {
-        if(cancerType != null) {
-            val resultCancer = when(cancerType) {
-                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
-            }
-            hideProgress()
-            val action = CameraFragmentDirections.actionCameraFragmentToResultFragment(resultCancer, percent)
-            findNavController().navigate(action)
-        } else {
-            hideProgress()
-            val action = CameraFragmentDirections.actionCameraFragmentToResultFragment(mContext.getString(R.string.not_cancer), -1)
-            findNavController().navigate(action)
-        }
-
     }
 }

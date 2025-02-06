@@ -1,9 +1,12 @@
 package com.glion.skinscanner_and.ui.gallery
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
@@ -13,8 +16,6 @@ import com.glion.skinscanner_and.ui.base.BaseFragment
 import com.glion.skinscanner_and.util.Utility
 import com.glion.skinscanner_and.util.admob.AdmobInterface
 import com.glion.skinscanner_and.util.admob.AdmobUtil
-import com.glion.skinscanner_and.util.tflite.CancerQuantized
-import com.glion.skinscanner_and.util.tflite.CancerType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,10 +23,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), CancerQuantized.InferenceCallback, OnClickListener {
+class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), OnClickListener{
+    private var admobUtil: AdmobUtil? = null
     private var earnedReward: String = ""
+    private val viewModel : ResizeViewModel by viewModels()
+    private var movedAction: ResizeFragmentDirections.ActionResizeFragmentToResultFragment? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        admobUtil = setAdmob()
         with(mBinding) {
             CoroutineScope(Dispatchers.Main).launch {
                 val bitmap = withContext(Dispatchers.Main) {
@@ -35,31 +41,56 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                 tvDoAnalyze.setOnClickListener(this@ResizeFragment)
             }
         }
+        observeUiState()
     }
 
-    /**
-     * 촬영한 이미지로 분석 시작
-     * @param [bitmap] 분석할 Bitmap
-     */
-    private fun startAnalyze(bitmap: Bitmap) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val cancerQuantized = CancerQuantized(mContext, this@ResizeFragment)
-            cancerQuantized.processImage(bitmap).also {
-                cancerQuantized.recognizeCancer(it)
+    override fun onClick(v: View?) {
+        when(v!!.id) {
+            R.id.tv_do_analyze -> {
+                val croppedImage = mBinding.cropView.getCroppedImage()!!
+                Utility.saveBitmapInCache(croppedImage, mContext)
+                viewModel.doCancerAnalyze()
             }
         }
     }
 
-    override fun onResult(cancerType: CancerType?, percent: Int) {
-        val adMobUtil = AdmobUtil(mParentActivity, object : AdmobInterface {
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    when(uiState) {
+                        is ResizeUiState.OnLoading -> {
+
+                        }
+                        is ResizeUiState.OnProcessing -> {
+
+                        }
+                        is ResizeUiState.OnError -> {
+                            showToast(uiState.msg)
+                        }
+                        is ResizeUiState.OnSuccess -> {
+                            movedAction = ResizeFragmentDirections.actionResizeFragmentToResultFragment(uiState.analyzeResult.cancerType, uiState.analyzeResult.percent)
+                            admobUtil?.showAd()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun setAdmob() : AdmobUtil {
+        return AdmobUtil(mParentActivity, object : AdmobInterface {
             override fun adDismiss() {
                 if(BuildConfig.DEBUG) {
                     if(earnedReward == "coins") {
-                        processIsCancer(cancerType, percent)
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
                     }
                 } else {
                     if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
-                        processIsCancer(cancerType, percent)
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
                     }
                 }
             }
@@ -69,38 +100,9 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
             }
 
             override fun adError() {
-                processIsCancer(cancerType, percent)
+                hideProgress()
+                findNavController().navigate(movedAction!!)
             }
         })
-        adMobUtil.showAd()
-    }
-
-
-    override fun onClick(v: View?) {
-        when(v!!.id) {
-            R.id.tv_do_analyze -> {
-                val croppedImage = mBinding.cropView.getCroppedImage()!!
-                Utility.saveBitmapInCache(croppedImage, mContext)
-                startAnalyze(croppedImage)
-                showProgress()
-            }
-        }
-    }
-
-    private fun processIsCancer(cancerType: CancerType?, percent: Int) {
-        if(cancerType != null) {
-            val resultCancer = when(cancerType) {
-                CancerType.AKIEC -> mContext.getString(R.string.cancer_akiec)
-                CancerType.BCC -> mContext.getString(R.string.cancer_bcc)
-                CancerType.MEL -> mContext.getString(R.string.cancer_mel)
-            }
-            hideProgress()
-            val action = ResizeFragmentDirections.actionResizeFragmentToResultFragment(resultCancer, percent)
-            findNavController().navigate(action)
-        } else {
-            hideProgress()
-            val action = ResizeFragmentDirections.actionResizeFragmentToResultFragment(mContext.getString(R.string.not_cancer), -1)
-            findNavController().navigate(action)
-        }
     }
 }

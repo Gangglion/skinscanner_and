@@ -1,4 +1,4 @@
-package com.glion.skinscanner_and.util.tflite
+package com.glion.skinscanner_and.data.tflite.data
 
 /**
  * @property [AKIEC] 광선각화증 및 상피내암

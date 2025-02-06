@@ -1,6 +1,24 @@
-package com.glion.skinscanner_and.util.response
+package com.glion.skinscanner_and.data.api.data
 
 import com.google.gson.annotations.SerializedName
+
+data class ResponseKeyword(
+    val documents: List<Document>,
+    val meta: Meta
+)
+
+data class Meta(
+    val is_end: Boolean,
+    val pageable_count: Int,
+    val same_name: SameName,
+    val total_count: Int
+)
+
+data class SameName(
+    val keyword: String,
+    val region: List<Any>,
+    val selected_region: String
+)
 
 /**
  * 카카오 restApi 키워드로 장소 검색하기 Response Document Object

@@ -67,12 +67,16 @@ class ResultFragment : BaseFragment<FragmentResultBinding, MainActivity>(R.layou
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         arguments?.let {
             mCancerResult = it.getString(Define.RESULT)
             mCancerPercent = it.getInt(Define.VALUE, -1)
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         mBinding.tvNext.setOnClickListener(this)
         setLayout()

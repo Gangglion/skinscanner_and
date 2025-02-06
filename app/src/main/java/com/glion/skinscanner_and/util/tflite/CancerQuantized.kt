@@ -3,6 +3,7 @@ package com.glion.skinscanner_and.util.tflite
 import android.content.Context
 import android.graphics.Bitmap
 import com.glion.skinscanner_and.R
+import com.glion.skinscanner_and.data.tflite.data.CancerType
 import com.glion.skinscanner_and.util.LogUtil
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter

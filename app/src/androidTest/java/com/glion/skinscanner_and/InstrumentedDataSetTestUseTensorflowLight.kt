@@ -2,18 +2,16 @@ package com.glion.skinscanner_and
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.glion.skinscanner_and.data.tflite.data.CancerType
 import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.tflite.CancerQuantized
-import com.glion.skinscanner_and.util.tflite.CancerType
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.CountDownLatch
-
 import java.util.concurrent.Executors
 
 /**
