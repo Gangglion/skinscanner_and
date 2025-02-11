@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.FragmentSplashBinding
 import com.glion.skinscanner_and.ui.MainActivity
@@ -14,6 +15,7 @@ import com.glion.skinscanner_and.ui.dialog.CommonDialogType
 import com.glion.skinscanner_and.util.LogUtil
 import com.glion.skinscanner_and.util.RootCheck
 import com.glion.skinscanner_and.util.Utility
+import com.glion.skinscanner_and.util.admob.AdmobUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,24 +25,34 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
     private val viewModel: SplashViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeState()
-        // 루팅 체크
-        if(RootCheck(mContext).checkSu()) {
-            showDialog(
-                dialogType = CommonDialogType.OneButton,
-                title = mContext.getString(R.string.notice),
-                contents = mContext.getString(R.string.maybe_rooted_app),
-                listener = object : CommonDialog.DialogButtonClick {
-                    override fun singleBtnClick() {
-                        super.singleBtnClick()
-                        mParentActivity.finish()
-                    }
+
+        // 광고 초기화
+        AdmobUtil.loadAd(mParentActivity) {
+            // note : 광고 초기화가 이뤄진 뒤에 버전체크 진행
+            observeState()
+
+            if(BuildConfig.DEBUG) {
+                if(Utility.checkNetworkStatus(mContext))
+                    viewModel.checkVersion()
+            } else {
+                if(RootCheck(mContext).isRooted()) {
+                    showDialog(
+                        dialogType = CommonDialogType.OneButton,
+                        title = mContext.getString(R.string.notice),
+                        contents = mContext.getString(R.string.maybe_rooted_app),
+                        listener = object : CommonDialog.DialogButtonClick {
+                            override fun singleBtnClick() {
+                                super.singleBtnClick()
+                                mParentActivity.finish()
+                            }
+                        }
+                    )
+                } else {
+                    // note : 인터넷이 연결되어있을때만 앱 버전 체크
+                    if(Utility.checkNetworkStatus(mContext))
+                        viewModel.checkVersion()
                 }
-            )
-        } else {
-            // note : 인터넷이 연결되어있을때만 앱 버전 체크
-            if(Utility.checkNetworkStatus(mContext))
-                viewModel.checkVersion()
+            }
         }
     }
 

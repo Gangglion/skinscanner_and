@@ -24,14 +24,40 @@ import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layout.fragment_resize), OnClickListener{
-    private var admobUtil: AdmobUtil? = null
     private var earnedReward: String = ""
     private val viewModel : ResizeViewModel by viewModels()
     private var movedAction: ResizeFragmentDirections.ActionResizeFragmentToResultFragment? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AdmobUtil.setListener(object : AdmobInterface {
+            override fun adDismiss() {
+                if(BuildConfig.DEBUG) {
+                    if(earnedReward == "coins") {
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
+                    }
+                } else {
+                    if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
+                    }
+                }
+            }
+
+            override fun getReward(rewardType: String) {
+                earnedReward = rewardType
+            }
+
+            override fun adError() {
+                hideProgress()
+                findNavController().navigate(movedAction!!)
+            }
+        })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        admobUtil = setAdmob()
         with(mBinding) {
             CoroutineScope(Dispatchers.Main).launch {
                 val bitmap = withContext(Dispatchers.Main) {
@@ -70,39 +96,12 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
                         }
                         is ResizeUiState.OnSuccess -> {
                             movedAction = ResizeFragmentDirections.actionResizeFragmentToResultFragment(uiState.analyzeResult.cancerType, uiState.analyzeResult.percent)
-                            admobUtil?.showAd()
+                            mBinding.vAdDim.visibility = View.VISIBLE
+                            AdmobUtil.showAd()
                         }
                     }
                 }
             }
         }
-    }
-
-
-    private fun setAdmob() : AdmobUtil {
-        return AdmobUtil(mParentActivity, object : AdmobInterface {
-            override fun adDismiss() {
-                if(BuildConfig.DEBUG) {
-                    if(earnedReward == "coins") {
-                        hideProgress()
-                        findNavController().navigate(movedAction!!)
-                    }
-                } else {
-                    if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
-                        hideProgress()
-                        findNavController().navigate(movedAction!!)
-                    }
-                }
-            }
-
-            override fun getReward(rewardType: String) {
-                earnedReward = rewardType
-            }
-
-            override fun adError() {
-                hideProgress()
-                findNavController().navigate(movedAction!!)
-            }
-        })
     }
 }

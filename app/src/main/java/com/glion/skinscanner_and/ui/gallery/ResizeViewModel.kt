@@ -6,7 +6,8 @@ import com.glion.skinscanner_and.data.tflite.data.AnalyzeResult
 import com.glion.skinscanner_and.data.tflite.reppository.TfliteRepository
 import com.glion.skinscanner_and.util.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
@@ -17,8 +18,8 @@ import javax.inject.Inject
 class ResizeViewModel @Inject constructor(
     private val tfliteRepository: TfliteRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ResizeUiState>(ResizeUiState.OnLoading)
-    val uiState: StateFlow<ResizeUiState> = _uiState
+    private val _uiState = MutableSharedFlow<ResizeUiState>(replay = 0) // SharedFlow 의 replay 값을 0으로 설정하면 새로운 구독자가 collect 할때 이전 값을 받지 않는다. StateFlow 는 마지막 값을 계속 유지하고 있다.
+    val uiState: SharedFlow<ResizeUiState> = _uiState
 
     fun doCancerAnalyze() {
         viewModelScope.launch {

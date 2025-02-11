@@ -14,7 +14,7 @@ class RootCheck (
     private val mContext: Context
 ) {
     // 루팅체크
-    fun checkSu(): Boolean {
+    fun isRooted(): Boolean {
         Log.i(
             RootCheck::class.java.simpleName,
             " ___    _____  _____  _____  _  _   _  ___            ___    _   _  ___    ___    _   _ \n" +

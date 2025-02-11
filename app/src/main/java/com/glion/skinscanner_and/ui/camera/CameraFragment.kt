@@ -49,10 +49,39 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var mImageCapture: ImageCapture? = null
     private lateinit var mCameraExecutor: ExecutorService
-    private var admobUtil: AdmobUtil? = null
+
     private var earnedReward: String = ""
 
     private var movedAction: CameraFragmentDirections.ActionCameraFragmentToResultFragment? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // onCreate 단계에서 광고 로드
+        AdmobUtil.setListener(object : AdmobInterface {
+            override fun adDismiss() {
+                if(BuildConfig.DEBUG) {
+                    if(earnedReward == "coins") {
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
+                    }
+                } else {
+                    if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
+                        hideProgress()
+                        findNavController().navigate(movedAction!!)
+                    }
+                }
+            }
+
+            override fun getReward(rewardType: String) {
+                earnedReward = rewardType
+            }
+
+            override fun adError() {
+                hideProgress()
+                findNavController().navigate(movedAction!!)
+            }
+        })
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -68,7 +97,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
             tvReCapture.setOnClickListener(this@CameraFragment)
             tvDoAnalyze.setOnClickListener(this@CameraFragment)
         }
-        admobUtil = setAdmob()
         observeUiState()
     }
 
@@ -206,7 +234,8 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                         is CameraUiState.OnLoading -> {  }
                         is CameraUiState.OnProcessing -> {
                             hideProgress()
-                            setAdmob().showAd()
+                            mBinding.vAdDim.visibility = View.VISIBLE
+                            AdmobUtil.showAd()
                         }
                         is CameraUiState.OnError -> {
                             showToast(uiState.msg)
@@ -219,32 +248,5 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 }
             }
         }
-    }
-
-    private fun setAdmob() : AdmobUtil {
-        return AdmobUtil(mParentActivity, object : AdmobInterface {
-            override fun adDismiss() {
-                if(BuildConfig.DEBUG) {
-                    if(earnedReward == "coins") {
-                        hideProgress()
-                        findNavController().navigate(movedAction!!)
-                    }
-                } else {
-                    if(mContext.getString(R.string.reward_type) == earnedReward) { // note : 얻은 보상 타입이 미리 지정한 보상 타입과 같은 경우, 화면 이동
-                        hideProgress()
-                        findNavController().navigate(movedAction!!)
-                    }
-                }
-            }
-
-            override fun getReward(rewardType: String) {
-                earnedReward = rewardType
-            }
-
-            override fun adError() {
-                hideProgress()
-                findNavController().navigate(movedAction!!)
-            }
-        })
     }
 }

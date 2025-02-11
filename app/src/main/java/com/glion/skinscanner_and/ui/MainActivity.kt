@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.glion.skinscanner_and.R
 import com.glion.skinscanner_and.databinding.ActivityMainBinding
 import com.glion.skinscanner_and.ui.base.BaseActivity
+import com.glion.skinscanner_and.util.admob.AdmobUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
