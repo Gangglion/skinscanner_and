@@ -54,8 +54,10 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
 
     private var movedAction: CameraFragmentDirections.ActionCameraFragmentToResultFragment? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         // onCreate 단계에서 광고 로드
         AdmobUtil.setListener(object : AdmobInterface {
             override fun adDismiss() {
@@ -81,10 +83,6 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, MainActivity>(R.layou
                 findNavController().navigate(movedAction!!)
             }
         })
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         mCameraExecutor = Executors.newSingleThreadExecutor()
 

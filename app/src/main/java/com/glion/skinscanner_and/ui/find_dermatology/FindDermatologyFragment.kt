@@ -68,6 +68,7 @@ class FindDermatologyFragment : BaseFragment<FragmentFindDermatologyBinding, Mai
 
     override fun onResume() {
         super.onResume()
+        mBinding.rcList.adapter?.notifyItemRangeChanged(0, mBinding.rcList.adapter!!.itemCount)
         findDermatologyViewModel.getLastLocation()
     }
 
