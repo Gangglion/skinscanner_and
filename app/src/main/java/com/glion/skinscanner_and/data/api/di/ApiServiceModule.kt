@@ -3,7 +3,8 @@ package com.glion.skinscanner_and.data.api.di
 import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.data.api.repository.NetworkDatasource
 import com.glion.skinscanner_and.data.api.repository.NetworkDatasourceImpl
-import com.glion.skinscanner_and.data.api.source.ApiService
+import com.glion.skinscanner_and.data.api.source.KakaoApiService
+import com.glion.skinscanner_and.data.api.source.MyApiService
 import com.glion.skinscanner_and.util.Define
 import dagger.Binds
 import dagger.Module
@@ -44,13 +45,23 @@ object ApiServiceModule {
     }
 
     @Provides
-    fun provideApiService() : ApiService {
+    fun provideKakaoApiService() : KakaoApiService {
         return Retrofit.Builder()
-            .baseUrl(Define.BASE_URL)
+            .baseUrl(Define.KAKAO_BASE_URL)
             .client(provideOkHttpClient(AppInterceptor()))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java)
+            .create(KakaoApiService::class.java)
+    }
+
+    @Provides
+    fun provideMyApiService() : MyApiService {
+        return Retrofit.Builder()
+            .baseUrl("https://www.naver.com")
+            .client(provideOkHttpClient(AppInterceptor()))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MyApiService::class.java)
     }
 }
 

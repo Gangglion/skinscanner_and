@@ -25,7 +25,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
     private val viewModel: SplashViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        viewModel.exchangeKey()
         // 광고 초기화
         AdmobUtil.loadAd(mParentActivity) {
             // note : 광고 초기화가 이뤄진 뒤에 버전체크 진행
@@ -107,14 +107,39 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
                         // TODO : S3 API 사용해서 모델 다운로드 진행
                     }
                     is SplashState.OnError -> {
-                        // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
-                        // TODO : 서버와 키 교환 필요
                         // TODO : 모델 Hash 비교해서 다를 경우 다운로드 필요
+                        when(state.type) {
+                            SplashViewModel.VERSION_CHECK -> {
+                                // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
+                                // TODO : 서버와 키 교환 필요
+                            }
+                            SplashViewModel.EXCHANGE_KEY -> { // note : 키 교환 실패했을 경우
+                                // TODO : 모델 파일 존재 확인 후 모델이 없다면 Dialog 안내 후 앱 종료
+                            }
+                            SplashViewModel.MODEL_DOWNLOAD -> {
+                                // TODO : 모델 다운로드 실패. 이전 모델이 사용됨을 Dialog 로 안내
+                                // TODO : 메인 화면 이동
+                            }
+                        }
                         LogUtil.e("Error Getting Data", state.error)
                         findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
                     }
                 }
             }
         }
+    }
+
+    /**
+     * 키 교환
+     */
+    private fun keyExchange() {
+
+    }
+
+    /**
+     * Amazon S3 API 모델 다운로드
+     */
+    private fun downloadModel() {
+
     }
 }

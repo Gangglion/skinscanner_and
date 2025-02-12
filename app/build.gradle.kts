@@ -35,7 +35,7 @@ android {
         buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("KAKAO_NATIVE_KEY"))
         buildConfigField("String", "KAKAO_MAP_KEY", properties.getProperty("KAKAO_MAP_KEY"))
         buildConfigField("String", "KAKAO_REST_KEY", properties.getProperty("KAKAO_REST_KEY"))
-        buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
+        buildConfigField("String", "KAKAO_BASE_URL", properties.getProperty("KAKAO_BASE_URL"))
         // 테스트 데이터셋 URL 저장
         buildConfigField("String", "DATA_SET_URL", properties.getProperty("DATA_SET_URL"))
     }
