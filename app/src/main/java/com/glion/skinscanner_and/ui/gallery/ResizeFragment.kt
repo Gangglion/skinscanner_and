@@ -89,15 +89,14 @@ class ResizeFragment : BaseFragment<FragmentResizeBinding, MainActivity>(R.layou
 
                         }
                         is ResizeUiState.OnProcessing -> {
-
+                            mBinding.vAdDim.visibility = View.VISIBLE
+                            AdmobUtil.showAd()
                         }
                         is ResizeUiState.OnError -> {
                             showToast(uiState.msg)
                         }
                         is ResizeUiState.OnSuccess -> {
                             movedAction = ResizeFragmentDirections.actionResizeFragmentToResultFragment(uiState.analyzeResult.cancerType, uiState.analyzeResult.percent)
-                            mBinding.vAdDim.visibility = View.VISIBLE
-                            AdmobUtil.showAd()
                         }
                     }
                 }

@@ -4,16 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.glion.skinscanner_and.data.tflite.data.AnalyzeResult
 import com.glion.skinscanner_and.data.tflite.reppository.TfliteRepository
-import com.glion.skinscanner_and.ui.camera.CameraUiState.OnError
-import com.glion.skinscanner_and.ui.camera.CameraUiState.OnLoading
-import com.glion.skinscanner_and.ui.camera.CameraUiState.OnProcessing
-import com.glion.skinscanner_and.ui.camera.CameraUiState.OnSuccess
 import com.glion.skinscanner_and.util.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch

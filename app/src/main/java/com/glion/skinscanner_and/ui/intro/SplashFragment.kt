@@ -112,17 +112,22 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
                             SplashViewModel.VERSION_CHECK -> {
                                 // TODO : 파이어베이스 crashlytics 로그 전송 - fail get version in rtdb
                                 // TODO : 서버와 키 교환 필요
+                                LogUtil.e("Error Getting Data :: Version Check", state.error)
                             }
                             SplashViewModel.EXCHANGE_KEY -> { // note : 키 교환 실패했을 경우
                                 // TODO : 모델 파일 존재 확인 후 모델이 없다면 Dialog 안내 후 앱 종료
+                                LogUtil.e("Error Getting Data :: exchangeKey", state.error)
                             }
                             SplashViewModel.MODEL_DOWNLOAD -> {
                                 // TODO : 모델 다운로드 실패. 이전 모델이 사용됨을 Dialog 로 안내
                                 // TODO : 메인 화면 이동
+                                LogUtil.e("Error Getting Data :: Model Download", state.error)
                             }
                         }
-                        LogUtil.e("Error Getting Data", state.error)
                         findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+                    }
+                    else -> {
+                        // TODO : 기타 상황에 대한 처리 필요
                     }
                 }
             }
