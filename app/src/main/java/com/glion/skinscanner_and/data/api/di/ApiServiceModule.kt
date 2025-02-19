@@ -57,7 +57,7 @@ object ApiServiceModule {
     @Provides
     fun provideMyApiService() : MyApiService {
         return Retrofit.Builder()
-            .baseUrl("https://www.naver.com")
+            .baseUrl(BuildConfig.OUTER_SERVER)
             .client(provideOkHttpClient(AppInterceptor()))
             .addConverterFactory(GsonConverterFactory.create())
             .build()

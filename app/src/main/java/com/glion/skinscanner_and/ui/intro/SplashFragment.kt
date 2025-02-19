@@ -25,7 +25,6 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
     private val viewModel: SplashViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.exchangeKey()
         // 광고 초기화
         AdmobUtil.loadAd(mParentActivity) {
             // note : 광고 초기화가 이뤄진 뒤에 버전체크 진행
@@ -66,9 +65,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
                     is SplashState.OnUpdate -> {
                         when(state.flag) {
                             0 -> { // note : 업데이트 하지 않음
-                                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
-                                // TODO : 서버와 키 교환 필요
-                                // TODO : 모델 Hash 비교해서 다를 경우 다운로드 필요
+                                viewModel.exchangeKey()
                             }
                             1 -> {
                                 // note : 선택업데이트
@@ -103,6 +100,17 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
                             }
                         }
                     }
+                    is SplashState.OnKeyExChange -> {
+                        if(state.isComplete) {
+                            viewModel.checkFile(Utility.getFileHashFromAssets(mContext, mContext.getString(R.string.model_name)))
+                        } else {
+                            // note : 키 교환 완료 X
+                            //  -> 앱을 종료해야 할지, 내장된 모델로 사용해야 할지 고민
+                        }
+                    }
+                    is SplashState.OnCheckFile -> { // 모델 다운로드가 필요하지 않을때(파일 확인 완료)
+                        findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+                    }
                     is SplashState.OnModelDownload -> {
                         // TODO : S3 API 사용해서 모델 다운로드 진행
                     }
@@ -126,19 +134,9 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, MainActivity>(R.layou
                         }
                         findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
                     }
-                    else -> {
-                        // TODO : 기타 상황에 대한 처리 필요
-                    }
                 }
             }
         }
-    }
-
-    /**
-     * 키 교환
-     */
-    private fun keyExchange() {
-
     }
 
     /**

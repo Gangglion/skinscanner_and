@@ -2,6 +2,7 @@ package com.glion.skinscanner_and.ui.intro
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.glion.skinscanner_and.BuildConfig
 import com.glion.skinscanner_and.data.api.data.RequestCheckFile
 import com.glion.skinscanner_and.data.api.data.RequestExchangeKey
 import com.glion.skinscanner_and.data.api.repository.NetworkDatasource
@@ -21,7 +22,8 @@ class SplashViewModel @Inject constructor(
     companion object {
         const val VERSION_CHECK = 1
         const val EXCHANGE_KEY = 2
-        const val MODEL_DOWNLOAD = 3
+        const val CHECK_FILE = 3
+        const val MODEL_DOWNLOAD = 4
     }
 
     private val _uiState = MutableStateFlow<SplashState>(SplashState.OnLoading)
@@ -50,15 +52,13 @@ class SplashViewModel @Inject constructor(
     fun exchangeKey() {
         viewModelScope.launch {
             CryptoUtils.rsaInitialize()
-            val pemTypedPublicRsaKey = CryptoUtils.changeToPemForSend(CryptoUtils.publicKeyToPEM())
-            val request = RequestExchangeKey(pemTypedPublicRsaKey)
-            CryptoUtils.testRSAEncryption()
+            val request = RequestExchangeKey(CryptoUtils.publicKeyToPEM())
+            if(BuildConfig.DEBUG) CryptoUtils.testRSAEncryption()
             networkDatasource.exchangeKey(request)
                 .onStart { _uiState.emit(SplashState.OnLoading) }
                 .catch { e -> _uiState.emit(SplashState.OnError(e, EXCHANGE_KEY)) }
                 .collect {
-//                    _uiState.emit(SplashState.OnKeyExChange(true))
-//                    checkFile()
+                    _uiState.emit(SplashState.OnKeyExChange(true))
                 }
         }
     }
@@ -66,14 +66,17 @@ class SplashViewModel @Inject constructor(
     /**
      * 파일 해시값 비교
      */
-    fun checkFile() {
+    fun checkFile(fileHash: String) {
         viewModelScope.launch {
-            val fileHash = ""
             networkDatasource.checkFile(RequestCheckFile(fileHash))
-                .onStart {  }
-                .catch {  }
-                .collect {
-
+                .onStart { _uiState.emit(SplashState.OnLoading) }
+                .catch { e -> _uiState.emit(SplashState.OnError(e, CHECK_FILE)) }
+                .collect { result ->
+                    if(result) { // 모델 다운로드가 필요할 경우
+                        _uiState.emit(SplashState.OnModelDownload)
+                    } else { // 모델 다운로드가 필요하지 않을 때
+                        _uiState.emit(SplashState.OnCheckFile(true))
+                    }
                 }
         }
     }
@@ -83,6 +86,7 @@ sealed interface SplashState {
     data object OnLoading : SplashState
     data class OnUpdate(val flag: Int) : SplashState
     data class OnKeyExChange(val isComplete: Boolean) : SplashState
+    data class OnCheckFile(val isComplete: Boolean) : SplashState
     data object OnModelDownload : SplashState
     data class OnError(val error: Throwable?, val type: Int) : SplashState
 }

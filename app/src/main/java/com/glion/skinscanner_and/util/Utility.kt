@@ -17,6 +17,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.security.MessageDigest
 
 object Utility{
 
@@ -136,5 +139,34 @@ object Utility{
             actNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
             else -> false
         }
+    }
+
+    /**
+     * 파일 해시값 추출
+     */
+    fun getFileHashFromAssets(context: Context, fileName: String, algorithm: String = "SHA-256"): String {
+        val messageDigest = MessageDigest.getInstance(algorithm)
+
+        try {
+            // assets 폴더에서 파일을 읽기
+            val inputStream: InputStream = context.assets.open(fileName)
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+
+            // 파일을 읽으면서 해시 계산
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                messageDigest.update(buffer, 0, bytesRead)
+            }
+            inputStream.close()
+
+            // 해시값을 16진수로 변환
+            val byteArray = messageDigest.digest()
+            return byteArray.joinToString("") { "%02x".format(it) }
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return ""
     }
 }

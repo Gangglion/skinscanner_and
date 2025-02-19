@@ -7,6 +7,7 @@ import com.glion.skinscanner_and.data.api.data.RequestExchangeKey
 import com.glion.skinscanner_and.data.api.mapper.toData
 import com.glion.skinscanner_and.data.api.source.KakaoApiService
 import com.glion.skinscanner_and.data.api.source.MyApiService
+import com.glion.skinscanner_and.util.CryptoUtils
 import com.glion.skinscanner_and.util.Utility
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
@@ -58,10 +59,9 @@ class NetworkDatasourceImpl @Inject constructor(
 
     override suspend fun exchangeKey(request: RequestExchangeKey) = flow {
         val response = myApiService.exchangeKey(request)
-        // note : key, iv 둘다 RSA 복호화 진행
-        val key = response.key
-        val iv = response.iv
-        // TODO : key, iv 파일로 저장. 성공시 true 리턴
+        val decryptedKey = CryptoUtils.rsaDecrypt(response.data.key)
+        val decryptedIv = CryptoUtils.rsaDecrypt(response.data.iv)
+        CryptoUtils.setAESKey(decryptedKey, decryptedIv)
         emit(true)
     }.flowOn(Dispatchers.IO)
 

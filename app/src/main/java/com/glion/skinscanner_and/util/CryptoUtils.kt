@@ -5,9 +5,7 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.glion.skinscanner_and.data.api.data.AESKey
 import com.google.android.gms.common.util.Base64Utils
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.security.KeyPairGenerator
 import java.security.KeyStore
@@ -28,14 +26,17 @@ object CryptoUtils {
         return aesKey
     }
 
+    fun setAESKey(key: String, iv: String) {
+        aesKey = AESKey(
+            key = key,
+            iv = iv
+        )
+    }
+
     suspend fun rsaInitialize() {
         withContext(Dispatchers.IO) {
             getKeyInKeyStore()
         }
-//        val deferredRsaInit = CoroutineScope(Dispatchers.IO).async{
-//            getKeyInKeyStore()
-//        }
-//        deferredRsaInit.await()
     }
 
     private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply{
@@ -87,29 +88,6 @@ object CryptoUtils {
             publicKey = keyPair.public
             privateKey = keyPair.private
         }
-//        val deferred = CoroutineScope(Dispatchers.IO).async{
-//            val keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore")
-//            val parameterSpec = KeyGenParameterSpec.Builder(
-//                Define.KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-//            ).run{
-//                setAlgorithmParameterSpec(
-//                    RSAKeyGenParameterSpec(
-//                        4096,
-//                        RSAKeyGenParameterSpec.F4
-//                    )
-//                )
-//                setBlockModes(KeyProperties.BLOCK_MODE_ECB)
-//                setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-//                setDigests(KeyProperties.DIGEST_SHA1)
-//                setUserAuthenticationRequired(false)
-//                build()
-//            }
-//            keyPairGenerator.initialize(parameterSpec)
-//            val keyPair = keyPairGenerator.generateKeyPair()
-//            publicKey = keyPair.public
-//            privateKey = keyPair.private
-//        }
-//        deferred.await()
     }
 
     /**
@@ -124,17 +102,6 @@ object CryptoUtils {
             postfix = "\n-----END PUBLIC KEY-----\n"
         )
         return pemString;
-    }
-
-    /**
-     * 서버 전송용으로 pemString을 전처리
-     */
-    fun changeToPemForSend(pemString: String): String{
-        return pemString
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replace("\n","")
-            .replace(" ", "")
     }
 
     /**
@@ -156,7 +123,7 @@ object CryptoUtils {
     /**
      * RSA 복호화
      */
-    fun rsaDecrypt(en: String) : String?{
+    fun rsaDecrypt(en: String) : String{
         val oappSp = OAEPParameterSpec(
             "SHA-1",
             "MGF1",
@@ -165,7 +132,7 @@ object CryptoUtils {
         )
         val decCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding")
         decCipher.init(Cipher.DECRYPT_MODE, privateKey, oappSp)
-        var decryptTextByteArray = decCipher.doFinal(Base64Utils.decode(en))
+        val decryptTextByteArray = decCipher.doFinal(Base64Utils.decode(en))
         return String(decryptTextByteArray)
     }
 

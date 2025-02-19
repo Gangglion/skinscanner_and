@@ -38,6 +38,9 @@ android {
         buildConfigField("String", "KAKAO_BASE_URL", properties.getProperty("KAKAO_BASE_URL"))
         // 테스트 데이터셋 URL 저장
         buildConfigField("String", "DATA_SET_URL", properties.getProperty("DATA_SET_URL"))
+        // 테스트 서버 URL 저장
+        buildConfigField("String", "OUTER_SERVER", properties.getProperty("OUTER_SERVER"))
+        buildConfigField("String", "INNER_SERVER", properties.getProperty("INNER_SERVER"))
     }
 
     buildTypes {
