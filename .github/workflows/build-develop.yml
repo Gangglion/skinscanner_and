@@ -1,0 +1,47 @@
+name: Build develop Branch
+
+on:
+  # develop 브랜치 push 시 실행
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      # Java 17 세팅
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # Gradlew 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+#      # secret 세팅
+#      - name : Get Properties
+#        run: |
+#          echo '${{secrets.DSTOP_CLIENT_SECRET}}' > secret.properties
+
+      # 빌드 전 Clean
+      - name: Clean Build
+        run: ./gradlew clean
+
+      # 전체 빌드
+      - name: Build with Gradle
+        run: ./gradlew build
+
+#      # Debug APK 업로드
+#      - name: Upload Debug APK
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name : debug apk
+#          path: |
+#            ./app/build/outputs/apk/debug/.*.apk
+
