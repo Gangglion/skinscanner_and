@@ -5,9 +5,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     // google-service
-    id("com.google.gms.google-services")
+//    id("com.google.gms.google-services")
     // firebase crashlytics
-    id("com.google.firebase.crashlytics")
+//    id("com.google.firebase.crashlytics")
     // hilt
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
@@ -21,12 +21,12 @@ val properties = Properties().apply {
 
 android {
     namespace = "com.glion.skinscanner_and"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.glion.skinscanner_and"
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "0.0.1"
 
@@ -43,25 +43,25 @@ android {
         buildConfigField("String", "INNER_SERVER", properties.getProperty("INNER_SERVER"))
     }
 
-    buildTypes {
-        debug {
-            // 테스트용 보상형 광고 App Id manifestPlaceholders 로 저장
-            manifestPlaceholders["AD_APP_ID"] = properties.getProperty("TEST_AD_APP_ID") as String
-            // 보상형 광고 ID buldConfigField 에 저장
-            buildConfigField("String", "AD_ID", properties.getProperty("TEST_AD_ID"))
-        }
-        release {
-            // 보상형 광고 App Id manifestPlaceholders 로 저장
-            manifestPlaceholders["AD_APP_ID"] = properties.getProperty("REWARD_AD_APP_ID") as String
-            // 보상형 광고 ID buldConfigField 에 저장
-            buildConfigField("String", "AD_ID", properties.getProperty("REWARD_AD_ID"))
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
+//    buildTypes {
+//        debug {
+//            // 테스트용 보상형 광고 App Id manifestPlaceholders 로 저장
+//            manifestPlaceholders["AD_APP_ID"] = properties.getProperty("TEST_AD_APP_ID") as String
+//            // 보상형 광고 ID buldConfigField 에 저장
+//            buildConfigField("String", "AD_ID", properties.getProperty("TEST_AD_ID"))
+//        }
+//        release {
+//            // 보상형 광고 App Id manifestPlaceholders 로 저장
+//            manifestPlaceholders["AD_APP_ID"] = properties.getProperty("REWARD_AD_APP_ID") as String
+//            // 보상형 광고 ID buldConfigField 에 저장
+//            buildConfigField("String", "AD_ID", properties.getProperty("REWARD_AD_ID"))
+//            isMinifyEnabled = false
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
+//        }
+//    }
     buildFeatures {
         buildConfig = true
     }
@@ -127,17 +127,17 @@ dependencies {
 
     // Google play service location
     implementation(libs.play.services.location)
-    // AdMob
-    implementation(libs.play.services.ads)
+//    // AdMob
+//    implementation(libs.play.services.ads)
 
-    // firebase bom
-    implementation(platform(libs.firebase.bom))
-    // firebase crashlytics
-    implementation(libs.firebase.crashlytics)
-    // firebase analytics
-    implementation(libs.firebase.analytics)
-    // firebase realtime database
-    implementation(libs.firebase.database)
+//    // firebase bom
+//    implementation(platform(libs.firebase.bom))
+//    // firebase crashlytics
+//    implementation(libs.firebase.crashlytics)
+//    // firebase analytics
+//    implementation(libs.firebase.analytics)
+//    // firebase realtime database
+//    implementation(libs.firebase.database)
 
     // android fragment navigation
     implementation(libs.androidx.navigation.fragment)
