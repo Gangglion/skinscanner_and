@@ -4,15 +4,15 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.androidx.navigation.safeargs)
     // google-service
-    id("com.google.gms.google-services")
+    alias(libs.plugins.gms.google.services)
     // firebase crashlytics
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.firebase.crashlytics)
     // hilt
+//    alias(libs.plugins.jetbrains.kotlin.kapt)
     id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
-    // navigation SafeArgs
-    id("androidx.navigation.safeargs")
+    alias(libs.plugins.hilt.android)
 }
 
 val properties = Properties().apply {
@@ -21,14 +21,14 @@ val properties = Properties().apply {
 
 android {
     namespace = "com.glion.skinscanner_and"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.glion.skinscanner_and"
-        minSdk = 29
-        targetSdk = 34
-        versionCode = 1
-        versionName = "0.0.1"
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        versionCode = libs.versions.appVersionCode.get().toInt()
+        versionName = libs.versions.appVersion.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

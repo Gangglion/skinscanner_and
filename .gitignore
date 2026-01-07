@@ -104,6 +104,7 @@ obj/
 /.idea/codeStyles/*
 !/.idea/codeStyles/Project.xml
 !/.idea/codeStyles/codeStyleConfig.xml
+!/.idea/icon.png
 
 
 # Legacy Eclipse project files
@@ -141,5 +142,8 @@ fabric.properties
 
 ### Firebase
 app/google-services.json
+
+## tflite
+*.tflite
 
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio,kotlin
