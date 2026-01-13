@@ -2,17 +2,13 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.androidx.navigation.safeargs)
-    // google-service
-    alias(libs.plugins.gms.google.services)
-    // firebase crashlytics
-    alias(libs.plugins.firebase.crashlytics)
-    // hilt
-//    alias(libs.plugins.jetbrains.kotlin.kapt)
-    id("kotlin-kapt")
-    alias(libs.plugins.hilt.android)
+    id(Plugin.ANDROID_APPLICATION)
+    id(Plugin.JETBRAINS_KOTLIN_ANDROID)
+    id(Plugin.ANDROIDX_NAVIGATION_SAFEARGS)
+    id(Plugin.GMS_GOOGLE_SERVICES)
+    id(Plugin.FIREBASE_CRASHLYTICS)
+    id(Plugin.JETBRAINS_KOTLIN_KAPT)
+    id(Plugin.HILT_ANDROID)
 }
 
 val properties = Properties().apply {
@@ -21,14 +17,14 @@ val properties = Properties().apply {
 
 android {
     namespace = "com.glion.skinscanner_and"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk = AppConfig.COMPILE_SDK
 
     defaultConfig {
         applicationId = "com.glion.skinscanner_and"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = libs.versions.appVersionCode.get().toInt()
-        versionName = libs.versions.appVersion.get()
+        minSdk = AppConfig.MIN_SDK
+        targetSdk = AppConfig.TARGET_SDK
+        versionCode = AppConfig.APP_VERSION_CODE
+        versionName = AppConfig.APP_VERSION
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -84,82 +80,81 @@ android {
 }
 
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    implementation(Library.ANDROIDX_CORE_KTX)
+    implementation(Library.ANDROIDX_APPCOMPAT)
+    implementation(Library.MATERIAL)
+    implementation(Library.ANDROIDX_ACTIVITY)
+    implementation(Library.ANDROIDX_CONSTRAINT_LAYOUT)
 
     // For SplashScreen
-    implementation(libs.androidx.core.splashscreen)
+    implementation(Library.ANDROIDX_CORE_SPLASHSCREEN)
 
     // cameraX
-    implementation(libs.androidx.camera.core)
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.video)
-    implementation(libs.androidx.camera.view)
-    implementation(libs.androidx.camera.extensions)
+    implementation(Library.ANDROIDX_CAMERA_CORE)
+    implementation(Library.ANDROIDX_CAMERA_CAMERA2)
+    implementation(Library.ANDROIDX_CAMERA_LIFECYCLE)
+    implementation(Library.ANDROIDX_CAMERA_VIDEO)
+    implementation(Library.ANDROIDX_CAMERA_VIEW)
+    implementation(Library.ANDROIDX_CAMERA_EXTENSIONS)
 
     // tensorflow lite
-    implementation(libs.tensorflow.lite)
-    implementation(libs.tensorflow.lite.select.tf.ops)
+    implementation(Library.TENSORFLOW_LITE)
+    implementation(Library.TENSORFLOW_LITE_SELECT_TF_OPS)
     // tensorflow lite support library
-    implementation(libs.tensorflow.lite.v000nightlysnapshot)
+    implementation(Library.TENSORFLOW_LITE_V000_NIGHT_SNAPSHOT)
     // The GPU delegate library is optional. Depend on it as needed.
-    implementation (libs.tensorflow.lite.gpu)
-    implementation(libs.tensorflow.lite.support.v044)
+    implementation(Library.TENSORFLOW_LITE_GPU)
+    implementation(Library.TENSORFLOW_LITE_SUPPORT_V044)
 
     // Glide
-    implementation(libs.glide)
+    implementation(Library.GLIDE)
 
     // Image Cropper
-    implementation(libs.vanniktech.android.image.cropper)
+    implementation(Library.VANNIKTECH_ANDROID_IMAGE_CROPPER)
 
     // KakaoSdk
-    implementation(libs.v2.all) // 전체 모듈 설치, 2.11.0 버전부터 지원
+    implementation(Library.V2_ALL) // 전체 모듈 설치, 2.11.0 버전부터 지원
     // KakaoMap Sdk
-    implementation(libs.android)
+    implementation(Library.KAKAO_MAP_ANDROID)
 
     // Retrofit2
-    implementation(libs.retrofit)
+    implementation(Library.RETROFIT)
 
     // Google play service location
-    implementation(libs.play.services.location)
+    implementation(Library.PLAY_SERVICES_LOCATION)
     // AdMob
-    implementation(libs.play.services.ads)
+    implementation(Library.PLAY_SERVICES_ADS)
 
     // firebase bom
-    implementation(platform(libs.firebase.bom))
+    implementation(platform(Library.FIREBASE_BOM))
     // firebase crashlytics
-    implementation(libs.firebase.crashlytics)
+    implementation(Library.FIREBASE_CRASHLYTICS)
     // firebase analytics
-    implementation(libs.firebase.analytics)
+    implementation(Library.FIREBASE_ANALYTICS)
     // firebase realtime database
-    implementation(libs.firebase.database)
+    implementation(Library.FIREBASE_DATABASE)
 
     // android fragment navigation
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
+    implementation(Library.ANDROIDX_NAVIGATION_FRAGMENT)
+    implementation(Library.ANDROIDX_NAVIGATION_UI)
 
     // hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    implementation(Library.HILT_ANDROID)
+    kapt(Library.HILT_ANDROID_COMPILER)
 
     // SwipeRefreshLayout
-    implementation(libs.androidx.swiperefreshlayout)
+    implementation(Library.ANDROIDX_SWIPE_REFRESH_LAYOUT)
 
     // lottie
-    implementation(libs.lottie)
+    implementation(Library.LOTTIE)
 
     // datastore
-    implementation(libs.androidx.datastore.preferences)
+    implementation(Library.ANDROIDX_DATASTORE_PREFERENCES)
 
     // splash API
-    implementation(libs.androidx.core.splashscreen)
+    implementation(Library.ANDROIDX_CORE_SPLASHSCREEN)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(Library.JUNIT)
+    testImplementation(Library.ANDROIDX_JUNIT)
+    testImplementation(Library.ANDROIDX_ESPRESSO_CORE)
 }
